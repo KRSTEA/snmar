@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق سنمار للآيفون</title>
     
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json?v=3">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="#FC5700">
-    <meta name="apple-mobile-web-app-title" content="سنمار">
+    <meta name="apple-mobile-web-app-title" content="تطبيق سنمار">
     
     <style>
         body {
@@ -111,7 +111,7 @@
 </head>
 <body>
 
-    <div class="header"> سنمار </div>
+    <div class="header">تطبيق سنمار</div>
     
     <div class="container">
         <div id="loading">جاري تحميل المنتجات ...</div>
@@ -119,6 +119,13 @@
     </div>
 
     <script>
+        // إجبار المتصفح على إلغاء الكاش القديم فوراً
+        if (window.navigator && navigator.serviceWorker) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) { registration.unregister(); }
+            });
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyCtuy0-AraSFzMRxdWA3_B4fZg0RUahubs",
             authDomain: "alihsn-3c914.firebaseapp.com",
@@ -133,12 +140,14 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // 🧠 دالة كسر الحظر وجلب الصورة غصباً عن قيود المتصفح
+        // 🧠 دالة كسر الحظر المعدلة والمطورة لروابط درايف
         function getBypassedImageUrl(url) {
             if (!url) return "https://via.placeholder.com/150";
             
             if (url.includes("drive.google.com")) {
                 let fileId = "";
+                
+                // استخراج معرف الصورة بدقة مهما كانت صيغة الرابط
                 if (url.includes("id=")) {
                     fileId = url.split("id=")[1].split("&")[0];
                 } else if (url.includes("/d/")) {
@@ -146,9 +155,9 @@
                 }
                 
                 if (fileId) {
-                    // السطر السحري: نمرر الصورة عبر بروكسي صور عالمي يفتح الـ Stream مثل كود الأندرويد تماماً
-                    const directUrl = `https://docs.google.com/uc?export=download&id=${fileId}`;
-                    return `https://images.weserv.nl/?url=${encodeURIComponent(directUrl)}`;
+                    // رابط عرض خام ومباشر يتوافق مع البروكسيات العالمية
+                    const directUrl = `https://docs.google.com/uc?view&id=${fileId}`;
+                    return `https://images.weserv.nl/?url=${encodeURIComponent(directUrl)}&nocache=1`;
                 }
             }
             return url;
