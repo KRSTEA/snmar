@@ -286,10 +286,10 @@
         let cart = [];
         let pageHistory = ['mainPage'];
 
-        // الفايربيس ريف الخاص بالمستخدمين لتطابق السكيتشوير الفعلي
-        const fdb_users = database.ref("users");
+        // مسار الحسابات الموحد والمتوافق مع سكيتشوير والـ Rules الخاصة بك
+        const fdb_users = database.ref("fdb_users");
 
-        // تشغيل ميكانيكية فحص الحساب المسجل عند فتح الصفحة فوراً
+        // فحص حالة الجلسة فور فتح الصفحة
         window.addEventListener('DOMContentLoaded', () => {
             checkUserSession();
         });
@@ -297,12 +297,10 @@
         function checkUserSession() {
             const savedPhone = localStorage.getItem("user_phone");
             if (savedPhone) {
-                // الحساب موجود ومسجل مسبقاً، نفتح الشاشة الرئيسية مباشرة
                 document.getElementById("mainHeader").style.display = "flex";
                 navigateTo("mainPage", "تطبيق سنمار");
                 listenToProducts();
             } else {
-                // لا يوجد حساب، تظهر شاشة تسجيل الدخول فقط ويختفي الهيدر
                 document.getElementById("mainHeader").style.display = "none";
                 navigateToAuth("loginPage");
             }
@@ -324,14 +322,12 @@
             document.getElementById("loadingOverlay").style.display = "none";
         }
 
-        // توجيه واجهات التسجيل والدخول بدون الهيدر
         function navigateToAuth(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             window.scrollTo(0, 0);
         }
 
-        // التنقل العادي بين الشاشات للموقع الداخلي
         function navigateTo(pageId, title = "تطبيق سنمار") {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -353,7 +349,7 @@
             }
         }
 
-        // ================== [ منطق كود جافا تسجيل الدخول ] ==================
+        // ================== [ منطق تسجيل الدخول عبر المسارات المباشرة ] ==================
         function processLogin() {
             const phone = document.getElementById("loginPhone").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -365,12 +361,13 @@
 
             showLoading("جاري التحقق من الحساب...");
 
+            // جلب البيانات مباشرة من عقدة رقم الهاتف داخل مسار fdb_users
             fdb_users.child(phone).once("value").then((snapshot) => {
                 if (snapshot.exists()) {
                     let correctPassword = snapshot.hasChild("password") ? String(snapshot.child("password").val()) : "";
 
                     if (password === correctPassword) {
-                        // حفظ بيانات الـ SharedPreferences على المتصفح
+                        // تخزين البيانات محلياً للمتصفح كـ SharedPreferences للويب
                         localStorage.setItem("user_phone", phone);
                         if (snapshot.hasChild("name")) {
                             localStorage.setItem("user_name", String(snapshot.child("name").val()));
@@ -379,10 +376,9 @@
                             localStorage.setItem("shop_name", String(snapshot.child("shop_name").val()));
                         }
 
-                        // محاكاة الإضافة والتوكينج والتمرير المطابق للمفتاح البرمجي alihsn
+                        // تحديث حقول الـ Token الخاصة بجلسة المستخدم الحالية
                         let updateMap = {
-                            "fcmToken": "none",
-                            "alihsn": "kf69"
+                            "fcmToken": "none"
                         };
 
                         fdb_users.child(phone).update(updateMap).then(() => {
@@ -403,11 +399,11 @@
                 }
             }).catch(err => {
                 hideLoading();
-                showDialog("خطأ في الاتصال!");
+                showDialog("خطأ في الاتصال بالقاعدة! تحقق من الـ Rules");
             });
         }
 
-        // ================== [ منطق كود جافا إنشاء الحساب ] ==================
+        // ================== [ منطق إنشاء الحساب عبر المسارات المباشرة ] ==================
         function processRegister() {
             const userName = document.getElementById("regUserName").value.trim();
             const shopName = document.getElementById("regShopName").value.trim();
@@ -429,22 +425,24 @@
 
             showLoading("جاري إنشاء الحساب...");
 
+            // فحص الرقم مسبقاً في مسار fdb_users
             fdb_users.child(phone).once("value").then((snapshot) => {
                 if (snapshot.exists()) {
                     hideLoading();
                     showDialog("هذا الرقم مسجل مسبقاً!");
                 } else {
-                    // توليد الرقم التعريفي العشوائي المكون من 6 أرقام
+                    // توليد معرّف عشوائي فريد من 6 مراتب رقمية مطابق للـ Java كود
                     let characters = "0123456789";
                     let finalUserId = "";
                     for (let i = 0; i < 6; i++) {
                         finalUserId += characters.charAt(Math.floor(Math.random() * characters.length));
                     }
 
-                    // الحصول على التاريخ بصيغة yyyy/M/d المطابقة للأندرويد
+                    // توليد تاريخ اليوم بالصيغة المطلوبة
                     let now = new Date();
                     let dateNow = now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate();
 
+                    // بناء الماب وحفظه بالمسار المباشر fdb_users/phone
                     let userMap = {
                         "name": userName,
                         "shop_name": shopName,
@@ -478,7 +476,6 @@
             });
         }
 
-        // جلب ستايل تخطيط صور درايف عبر البروكسي
         function getBypassedImageUrl(url) {
             if (!url) return "https://via.placeholder.com/150";
             if (url.includes("drive.google.com")) {
@@ -493,7 +490,6 @@
             return url;
         }
 
-        // الاستماع للمنتجات fbd بعد التأكد من وجود جلسة حساب
         function listenToProducts() {
             database.ref("fbd").on("value", (snapshot) => {
                 const container = document.getElementById("productsContainer");
@@ -648,7 +644,6 @@
             document.getElementById("summaryTotalPrice").innerText = totalPrice.toLocaleString() + " د.ع";
         }
 
-        // ================== [ تعديل سحب الحساب وربطه بالطلب المرفوع ] ==================
         function submitFinalOrder() {
             const name = document.getElementById("cusName").value.trim();
             const phone = document.getElementById("cusPhone").value.trim();
@@ -707,9 +702,8 @@
             let orderRef = database.ref("all_orders").push();
             let pushKey = orderRef.key;
 
-            // هنا استبدلنا النصوص المؤقتة بسحب معلومات حساب المندوب المسجل فوراً من الكاش
             const currentAccountPhone = localStorage.getItem("user_phone") || "نسخة الويب";
-            const currentAccountShop = localStorage.getItem("shop_name") || "متجر آيفون ويب";
+            const currentAccountShop = localStorage.getItem("shop_name") || "متجر ويب سنمار";
 
             let orderMap = {
                 "user_phone": currentAccountPhone, 
