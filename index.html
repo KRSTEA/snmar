@@ -111,7 +111,7 @@
 </head>
 <body>
 
-    <div class="header">متجر سنمار</div>
+    <div class="header"> سنمار</div>
     
     <div class="container">
         <div id="loading">جاري تحميل المنتجات الحية...</div>
@@ -133,27 +133,22 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // دالة معالجة وتحويل روابط كوكل درايف لتعمل في المتصفح 100%
-        function getDirectDriveUrl(url) {
+        // 🧠 دالة كسر الحظر وجلب الصورة غصباً عن قيود المتصفح
+        function getBypassedImageUrl(url) {
             if (!url) return "https://via.placeholder.com/150";
             
             if (url.includes("drive.google.com")) {
                 let fileId = "";
-                
-                // استخراج الـ ID إذا كان الرابط يحتوي على uc?id=
                 if (url.includes("id=")) {
-                    const parts = url.split("id=");
-                    if (parts[1]) fileId = parts[1].split("&")[0];
-                } 
-                // استخراج الـ ID إذا كان الرابط يحتوي على /d/
-                else if (url.includes("/d/")) {
-                    const parts = url.split("/d/");
-                    if (parts[1]) fileId = parts[1].split("/")[0];
+                    fileId = url.split("id=")[1].split("&")[0];
+                } else if (url.includes("/d/")) {
+                    fileId = url.split("/d/")[1].split("/")[0];
                 }
                 
                 if (fileId) {
-                    // استخدام البروكسي المباشر للتغلب على حظر سفاري والآيفون لروابط درايف
-                    return `https://docs.google.com/uc?export=view&id=${fileId}`;
+                    // السطر السحري: نمرر الصورة عبر بروكسي صور عالمي يفتح الـ Stream مثل كود الأندرويد تماماً
+                    const directUrl = `https://docs.google.com/uc?export=download&id=${fileId}`;
+                    return `https://images.weserv.nl/?url=${encodeURIComponent(directUrl)}`;
                 }
             }
             return url;
@@ -176,8 +171,8 @@
                     const pPrice = product.sar || "0";
                     const pOldPrice = product.dna || "";
                     
-                    // تحويل الرابط هنا قبل وضعه في الوسم
-                    const pImage = getDirectDriveUrl(product.img1);
+                    // تشغيل دالة تخطي الحظر للرابط
+                    const pImage = getBypassedImageUrl(product.img1);
 
                     const cardHtml = `
                         <div class="product-card">
