@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق سنمار للآيفون</title>
+    <title>تطبيق سنمار</title>
     
     <link rel="manifest" href="manifest.json?v=4">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,6 +23,15 @@
         .container { padding: 15px; padding-bottom: 80px; }
         .page { display: none; }
         .page.active { display: block; }
+
+        /* شاشات الحسابات (تسجيل الدخول وإنشاء الحساب) بستايل سنمار */
+        .auth-logo-container { text-align: center; padding: 30px 10px; background-color: var(--main-color); color: white; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; margin: -15px -15px 25px -15px; }
+        .auth-logo { width: 60px; height: 60px; background: white; border-radius: 15px; display: inline-flex; justify-content: center; align-items: center; font-size: 30px; font-weight: bold; color: var(--main-color); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .auth-title { font-size: 18px; font-weight: bold; margin-top: 15px; margin-bottom: 5px; }
+        .auth-subtitle { font-size: 13px; opacity: 0.9; line-height: 1.4; padding: 0 20px; }
+        .auth-box { background: white; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; margin: 0 5px; }
+        .auth-btn-submit { background: var(--main-color); color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 10px rgba(252,87,0,0.3); }
+        .auth-link { text-align: center; margin-top: 20px; font-size: 14px; color: #333; font-weight: bold; cursor: pointer; text-decoration: underline; }
 
         /* الشاشة الرئيسية: شبكة المنتجات */
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
@@ -63,26 +72,29 @@
         .qty-val { font-weight: bold; font-size: 14px; }
         .btn-checkout-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: var(--main-color); color: white; text-align: center; padding: 16px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; z-index: 95; }
 
-        /* شاشة الاستمارة */
+        /* شاشة الاستمارة المشتركة لبيانات الحقول */
         .form-group { margin-bottom: 12px; text-align: right; }
-        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #424242; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 10px; font-size: 14px; outline: none; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--main-color); }
+        
         .summary-box { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 15px; }
         .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
         .summary-row.total { border-bottom: none; font-weight: bold; font-size: 16px; color: var(--main-color); }
 
-        /* نافذة سنمار الاحترافية (Custom Dialog) */
-        .snmar-dialog-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:flex; justify-content:center; align-items:center; z-index:1000; visibility:hidden; opacity:0; transition: 0.2s; }
-        .snmar-dialog { background: white; width: 80%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transform: scale(0.8); transition: 0.2s; }
+        /* نافذة سنمار الاحترافية الموحدة (Custom Dialog) */
+        .snmar-dialog-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:flex; justify-content:center; align-items:center; z-index:3000; visibility:hidden; opacity:0; transition: 0.2s; }
+        .snmar-dialog { background: white; width: 75%; max-width: 320px; border-radius: 25px; padding: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transform: scale(0.8); transition: 0.2s; }
         .snmar-dialog-overlay.show { visibility: visible; opacity: 1; }
         .snmar-dialog-overlay.show .snmar-dialog { transform: scale(1); }
-        .snmar-dialog p { color: #424242; font-size: 15px; margin-bottom: 20px; line-height: 1.5; white-space: pre-line; }
-        .snmar-dialog button { background: var(--main-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .snmar-dialog p { color: #424242; font-size: 14px; margin-bottom: 20px; line-height: 1.5; white-space: pre-line; }
+        .snmar-dialog button { background: var(--main-color); color: white; border: none; width: 100%; padding: 11px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; }
         
-        /* نافذة الانتظار */
-        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:2000; display:none; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--main-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        /* نافذة الانتظار الموحدة */
+        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:4000; display:none; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--main-color); border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-overlay p { margin-top:15px; color:#424242; font-size:13px; font-weight:bold; }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -90,7 +102,7 @@
 </head>
 <body>
 
-    <div class="header">
+    <div class="header" id="mainHeader" style="display:none;">
         <button class="back-btn" id="backBtn" onclick="goBack()">➔</button>
         <span id="headerTitle">تطبيق سنمار</span>
         <button class="cart-icon-btn" onclick="openCartPage()">
@@ -99,8 +111,57 @@
     </div>
     
     <div class="container">
-        <div id="mainPage" class="page active">
-            <div id="loading">جاري تحميل المنتجات ...</div>
+        
+        <div id="loginPage" class="page">
+            <div class="auth-logo-container">
+                <div class="auth-logo">🛍️</div>
+                <div class="auth-title">سجّل دخولك إلى سنمار</div>
+                <div class="auth-subtitle">للوصول إلى لوحة التحكم الخاصة بك وإدارة عمليات البيع والتسوق بكل سلاسة.</div>
+            </div>
+            <div class="auth-box">
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="loginPhone" placeholder="07XXXXXXXX" style="text-align: left; direction: ltr;">
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>كلمة السر</label>
+                    <input type="password" id="loginPassword" placeholder="اكتب كلمة السر">
+                </div>
+                <button class="auth-btn-submit" onclick="processLogin()">تسجيل الدخول</button>
+                <div class="auth-link" onclick="navigateToAuth('registerPage')">انشاء حساب جديد</div>
+            </div>
+        </div>
+
+        <div id="registerPage" class="page">
+            <div class="auth-logo-container">
+                <div class="auth-logo">🛍️</div>
+                <div class="auth-title">أنشئ حسابك الآن</div>
+                <div class="auth-subtitle">اصبح تاجر بدون تخزين أو رأس مال، يمكنك إدارة مبيعاتك ومتابعة طلباتك وتحقيق أرباحك</div>
+            </div>
+            <div class="auth-box">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="regUserName" placeholder="اكتب اسمك">
+                </div>
+                <div class="form-group">
+                    <label>اسم المتجر الخاص بك</label>
+                    <input type="text" id="regShopName" placeholder="اكتب اسم المتجر">
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="regPhone" placeholder="07XXXXXXXX" style="text-align: left; direction: ltr;">
+                </div>
+                <div class="form-group">
+                    <label>كلمة السر</label>
+                    <input type="password" id="regPassword" placeholder="اكتب كلمة السر">
+                </div>
+                <button class="auth-btn-submit" onclick="processRegister()">انشاء الحساب</button>
+                <div class="auth-link" onclick="navigateToAuth('loginPage')">لديك حساب مستخدم؟</div>
+            </div>
+        </div>
+
+        <div id="mainPage" class="page">
+            <div id="loading" style="text-align: center; margin-top: 30px; font-weight: bold; color: #777;">جاري تحميل المنتجات ...</div>
             <div id="productsContainer" class="products-grid"></div>
         </div>
 
@@ -202,7 +263,7 @@
 
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <p style="margin-top:15px; color:#424242; font-weight:bold;">جاري إرسال طلبك...</p>
+        <p id="loadingOverlayText">جاري العمل...</p>
     </div>
 
     <script>
@@ -225,7 +286,28 @@
         let cart = [];
         let pageHistory = ['mainPage'];
 
-        // دالة عرض النافذة الموحدة لسنمار بنفس شكل الجافا
+        // الفايربيس ريف الخاص بالمستخدمين لتطابق السكيتشوير الفعلي
+        const fdb_users = database.ref("users");
+
+        // تشغيل ميكانيكية فحص الحساب المسجل عند فتح الصفحة فوراً
+        window.addEventListener('DOMContentLoaded', () => {
+            checkUserSession();
+        });
+
+        function checkUserSession() {
+            const savedPhone = localStorage.getItem("user_phone");
+            if (savedPhone) {
+                // الحساب موجود ومسجل مسبقاً، نفتح الشاشة الرئيسية مباشرة
+                document.getElementById("mainHeader").style.display = "flex";
+                navigateTo("mainPage", "تطبيق سنمار");
+                listenToProducts();
+            } else {
+                // لا يوجد حساب، تظهر شاشة تسجيل الدخول فقط ويختفي الهيدر
+                document.getElementById("mainHeader").style.display = "none";
+                navigateToAuth("loginPage");
+            }
+        }
+
         function showDialog(msg) {
             document.getElementById("snmarDialogMessage").innerText = msg;
             document.getElementById("snmarDialogOverlay").classList.add("show");
@@ -234,28 +316,29 @@
             document.getElementById("snmarDialogOverlay").classList.remove("show");
         }
 
-        // دالة معالجة صور درايف عبر البروكسي
-        function getBypassedImageUrl(url) {
-            if (!url) return "https://via.placeholder.com/150";
-            if (url.includes("drive.google.com")) {
-                let fileId = "";
-                if (url.includes("id=")) { fileId = url.split("id=")[1].split("&")[0]; }
-                else if (url.includes("/d/")) { fileId = url.split("/d/")[1].split("/")[0]; }
-                if (fileId) {
-                    const directUrl = `https://docs.google.com/uc?view&id=${fileId}`;
-                    return `https://images.weserv.nl/?url=${encodeURIComponent(directUrl)}&nocache=1`;
-                }
-            }
-            return url;
+        function showLoading(text) {
+            document.getElementById("loadingOverlayText").innerText = text;
+            document.getElementById("loadingOverlay").style.display = "flex";
+        }
+        function hideLoading() {
+            document.getElementById("loadingOverlay").style.display = "none";
         }
 
-        // التنقل بين الشاشات
+        // توجيه واجهات التسجيل والدخول بدون الهيدر
+        function navigateToAuth(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // التنقل العادي بين الشاشات للموقع الداخلي
         function navigateTo(pageId, title = "تطبيق سنمار") {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             document.getElementById("headerTitle").innerText = title;
             document.getElementById("backBtn").style.display = pageId === 'mainPage' ? 'none' : 'block';
             if (pageHistory[pageHistory.length - 1] !== pageId) { pageHistory.push(pageId); }
+            window.scrollTo(0, 0);
         }
 
         function goBack() {
@@ -270,31 +353,172 @@
             }
         }
 
-        // جلب المنتجات رئيسية fbd
-        database.ref("fbd").on("value", (snapshot) => {
-            const container = document.getElementById("productsContainer");
-            const loadingText = document.getElementById("loading");
-            container.innerHTML = "";
-            if (snapshot.exists()) {
-                loadingText.style.display = "none";
-                allProducts = snapshot.val();
-                Object.keys(allProducts).forEach(key => {
-                    const prod = allProducts[key];
-                    const pImage = getBypassedImageUrl(prod.img1);
-                    const html = `
-                        <div class="product-card" onclick="openProductDetails('${key}')">
-                            <img src="${pImage}" onerror="this.src='https://via.placeholder.com/150';">
-                            <div class="product-info">
-                                <h3 class="product-title">${prod.name || 'منتج بدون اسم'}</h3>
-                                <span class="product-price-main">${prod.dna || 0} د.ع</span>
-                            </div>
-                        </div>`;
-                    container.innerHTML += html;
-                });
-            } else { loadingText.innerText = "لا توجد منتجات حالياً."; }
-        });
+        // ================== [ منطق كود جافا تسجيل الدخول ] ==================
+        function processLogin() {
+            const phone = document.getElementById("loginPhone").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
 
-        // فتح صفحة التفاصيل (alard) وتعبئة الحقول
+            if (phone === "" || password === "") {
+                showDialog("يرجى إدخال الرقم وكلمة السر");
+                return;
+            }
+
+            showLoading("جاري التحقق من الحساب...");
+
+            fdb_users.child(phone).once("value").then((snapshot) => {
+                if (snapshot.exists()) {
+                    let correctPassword = snapshot.hasChild("password") ? String(snapshot.child("password").val()) : "";
+
+                    if (password === correctPassword) {
+                        // حفظ بيانات الـ SharedPreferences على المتصفح
+                        localStorage.setItem("user_phone", phone);
+                        if (snapshot.hasChild("name")) {
+                            localStorage.setItem("user_name", String(snapshot.child("name").val()));
+                        }
+                        if (snapshot.hasChild("shop_name")) {
+                            localStorage.setItem("shop_name", String(snapshot.child("shop_name").val()));
+                        }
+
+                        // محاكاة الإضافة والتوكينج والتمرير المطابق للمفتاح البرمجي alihsn
+                        let updateMap = {
+                            "fcmToken": "none",
+                            "alihsn": "kf69"
+                        };
+
+                        fdb_users.child(phone).update(updateMap).then(() => {
+                            setTimeout(() => {
+                                hideLoading();
+                                document.getElementById("mainHeader").style.display = "flex";
+                                navigateTo("mainPage", "تطبيق سنمار");
+                                listenToProducts();
+                            }, 500);
+                        });
+                    } else {
+                        hideLoading();
+                        showDialog("كلمة السر غير صحيحة!");
+                    }
+                } else {
+                    hideLoading();
+                    showDialog("هذا الرقم غير مسجل، يرجى إنشاء حساب جديد");
+                }
+            }).catch(err => {
+                hideLoading();
+                showDialog("خطأ في الاتصال!");
+            });
+        }
+
+        // ================== [ منطق كود جافا إنشاء الحساب ] ==================
+        function processRegister() {
+            const userName = document.getElementById("regUserName").value.trim();
+            const shopName = document.getElementById("regShopName").value.trim();
+            const phone = document.getElementById("regPhone").value.trim();
+            const password = document.getElementById("regPassword").value.trim();
+
+            if (userName === "" || shopName === "" || phone === "" || password === "") {
+                showDialog("يرجى ملء جميع الحقول");
+                return;
+            } 
+            if (password.length < 6) {
+                showDialog("كلمة السر يجب أن تكون 6 رموز فأكثر");
+                return;
+            }
+            if (phone.length !== 11 || !(phone.startsWith("077") || phone.startsWith("078") || phone.startsWith("075"))) {
+                showDialog("عذراً، يجب أن يتكون الرقم من 11 مرتبة ويبدأ بـ 077 أو 078 أو 075");
+                return;
+            }
+
+            showLoading("جاري إنشاء الحساب...");
+
+            fdb_users.child(phone).once("value").then((snapshot) => {
+                if (snapshot.exists()) {
+                    hideLoading();
+                    showDialog("هذا الرقم مسجل مسبقاً!");
+                } else {
+                    // توليد الرقم التعريفي العشوائي المكون من 6 أرقام
+                    let characters = "0123456789";
+                    let finalUserId = "";
+                    for (let i = 0; i < 6; i++) {
+                        finalUserId += characters.charAt(Math.floor(Math.random() * characters.length));
+                    }
+
+                    // الحصول على التاريخ بصيغة yyyy/M/d المطابقة للأندرويد
+                    let now = new Date();
+                    let dateNow = now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate();
+
+                    let userMap = {
+                        "name": userName,
+                        "shop_name": shopName,
+                        "phone": phone,
+                        "password": password,
+                        "user_id": finalUserId,
+                        "fcmToken": "none",
+                        "nhsa": dateNow
+                    };
+
+                    fdb_users.child(phone).set(userMap).then(() => {
+                        setTimeout(() => {
+                            hideLoading();
+                            localStorage.setItem("user_phone", phone);
+                            localStorage.setItem("shop_name", shopName);
+                            localStorage.setItem("user_name", userName);
+
+                            showDialog("تم التسجيل بنجاح ✅");
+                            document.getElementById("mainHeader").style.display = "flex";
+                            navigateTo("mainPage", "تطبيق سنمار");
+                            listenToProducts();
+                        }, 1500);
+                    }).catch(e => {
+                        hideLoading();
+                        showDialog("خطأ في الحفظ ❌");
+                    });
+                }
+            }).catch(e => {
+                hideLoading();
+                showDialog("خطأ في الاتصال بالخادم!");
+            });
+        }
+
+        // جلب ستايل تخطيط صور درايف عبر البروكسي
+        function getBypassedImageUrl(url) {
+            if (!url) return "https://via.placeholder.com/150";
+            if (url.includes("drive.google.com")) {
+                let fileId = "";
+                if (url.includes("id=")) { fileId = url.split("id=")[1].split("&")[0]; }
+                else if (url.includes("/d/")) { fileId = url.split("/d/")[1].split("/")[0]; }
+                if (fileId) {
+                    const directUrl = `https://docs.google.com/uc?view&id=${fileId}`;
+                    return `https://images.weserv.nl/?url=${encodeURIComponent(directUrl)}&nocache=1`;
+                }
+            }
+            return url;
+        }
+
+        // الاستماع للمنتجات fbd بعد التأكد من وجود جلسة حساب
+        function listenToProducts() {
+            database.ref("fbd").on("value", (snapshot) => {
+                const container = document.getElementById("productsContainer");
+                const loadingText = document.getElementById("loading");
+                container.innerHTML = "";
+                if (snapshot.exists()) {
+                    loadingText.style.display = "none";
+                    allProducts = snapshot.val();
+                    Object.keys(allProducts).forEach(key => {
+                        const prod = allProducts[key];
+                        const pImage = getBypassedImageUrl(prod.img1);
+                        const html = `
+                            <div class="product-card" onclick="openProductDetails('${key}')">
+                                <img src="${pImage}" onerror="this.src='https://via.placeholder.com/150';">
+                                <div class="product-info">
+                                    <h3 class="product-title">${prod.name || 'منتج بدون اسم'}</h3>
+                                    <span class="product-price-main">${Number(prod.dna || 0).toLocaleString()} د.ع</span>
+                                </div>
+                            </div>`;
+                        container.innerHTML += html;
+                    });
+                } else { loadingText.innerText = "لا توجد منتجات حالياً."; }
+            });
+        }
+
         function openProductDetails(key) {
             currentSelectedProduct = allProducts[key];
             currentSelectedProduct.key = key;
@@ -306,7 +530,6 @@
             document.getElementById("customerPriceInput").value = currentSelectedProduct.dna || 0;
             document.getElementById("detailOsf").innerText = currentSelectedProduct.osf || 'لا يوجد مواصفات';
 
-            // إنشاء السلايدر لجميع الصور المتوفرة (من img1 إلى img10)
             const slider = document.getElementById("sliderContainer");
             slider.innerHTML = "";
             for (let i = 1; i <= 10; i++) {
@@ -326,7 +549,6 @@
             else { inputField.style.borderColor = "#ddd"; }
         }
 
-        // زر تحميل الصور
         function downloadProductImages() {
             let count = 0;
             for (let i = 1; i <= 10; i++) {
@@ -344,7 +566,6 @@
             showDialog(`تم بدء تحميل عدد (${count}) من الصور بنجاح!`);
         }
 
-        // إضافة المنتج إلى السلة
         function addToCart() {
             let chosenPrice = parseFloat(document.getElementById("customerPriceInput").value) || 0;
             let minDna = parseFloat(currentSelectedProduct.dna) || 0;
@@ -354,7 +575,6 @@
                 return;
             }
 
-            // التحقق إذا كان المنتج بنفس السعر مضاف مسبقاً
             let existItem = cart.find(item => item.key === currentSelectedProduct.key && item.chosenPrice === chosenPrice);
             if (existItem) {
                 existItem.qty += 1;
@@ -377,7 +597,6 @@
             document.getElementById("cartBadge").innerText = totalQty;
         }
 
-        // فتح صفحة السلة المستقلة
         function openCartPage() {
             navigateTo("cartPage", "السلة");
             const container = document.getElementById("cartItemsContainer");
@@ -414,7 +633,6 @@
             openCartPage();
         }
 
-        // فتح صفحة ملء معلومات الاستمارة والطلب
         function openCheckoutPage() {
             if (cart.length === 0) {
                 showDialog("يرجى إضافة منتجات للسلة أولاً!");
@@ -422,7 +640,6 @@
             }
             navigateTo("checkoutPage", "إتمام الشراء");
             
-            // حساب سعر الطلب الإجمالي (الكمية × السعر الذي حدده المندوب للزبون)
             let orderPrice = cart.reduce((sum, item) => sum + (item.chosenPrice * item.qty), 0);
             let deliveryFee = 5000;
             let totalPrice = orderPrice + deliveryFee;
@@ -431,7 +648,7 @@
             document.getElementById("summaryTotalPrice").innerText = totalPrice.toLocaleString() + " د.ع";
         }
 
-        // معالجة ورفع طلب الشراء الفائنل بالاعتماد على منطق كود الأندرويد الخاص بك
+        // ================== [ تعديل سحب الحساب وربطه بالطلب المرفوع ] ==================
         function submitFinalOrder() {
             const name = document.getElementById("cusName").value.trim();
             const phone = document.getElementById("cusPhone").value.trim();
@@ -453,16 +670,13 @@
                 return;
             }
 
-            // إظهار شاشة لودينج الحفظ والرفع
-            document.getElementById("loadingOverlay").style.display = "flex";
+            showLoading("جاري إرسال طلبك...");
             document.getElementById("btnFinalOrder").disabled = true;
 
-            // حساب الأرباح بناءً على الفارق الإجمالي (سعر الزبون - سعر الجملة)
             let totalOrderPrice = cart.reduce((sum, item) => sum + (item.chosenPrice * item.qty), 0);
             let mainTotalWithDelivery = totalOrderPrice + 5000;
             
             let totalProfit = 0;
-            // هيكلة الكارت بصيغة مصفوفة مخرجات الـ Gson المتوقعة في تطبيق الأدمن
             let formattedCartItems = [];
             
             cart.forEach(item => {
@@ -476,14 +690,12 @@
                 });
             });
 
-            // توليد آيدي عشوائي للطلب بطول 8 حقول
             const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
             let randomId = "";
             for (let i = 0; i < 8; i++) {
                 randomId += chars.charAt(Math.floor(Math.random() * chars.length));
             }
 
-            // توليد التاريخ الحالي
             let now = new Date();
             let dateString = now.getFullYear() + '/' + 
                              String(now.getMonth()+1).padStart(2, '0') + '/' + 
@@ -491,14 +703,17 @@
                              String(now.getHours()).padStart(2, '0') + ':' + 
                              String(now.getMinutes()).padStart(2, '0');
 
-            // إعداد الـ Map النهائي ليتوافق مع الـ Firebase والـ Admin
             let jsonCartString = JSON.stringify(formattedCartItems);
             let orderRef = database.ref("all_orders").push();
             let pushKey = orderRef.key;
 
+            // هنا استبدلنا النصوص المؤقتة بسحب معلومات حساب المندوب المسجل فوراً من الكاش
+            const currentAccountPhone = localStorage.getItem("user_phone") || "نسخة الويب";
+            const currentAccountShop = localStorage.getItem("shop_name") || "متجر آيفون ويب";
+
             let orderMap = {
-                "user_phone": "نسخة الويب للآيفون", // لتحديد مصدر الطلب للأدمن
-                "shop_name": "متجر الآيفون",
+                "user_phone": currentAccountPhone, 
+                "shop_name": currentAccountShop,
                 "fcmToken": "none",
                 "cus_phone": phone,
                 "order_id": randomId,
@@ -517,9 +732,7 @@
                 "key": pushKey
             };
 
-            // الرفع الفعلي للفايربيس الحية
             orderRef.set(orderMap).then(() => {
-                // إرسال الإشعار التلقائي للأدمن عبر نص الرابط البرمجي الذكي المرفق في كودك
                 database.ref("Admin_Config/token").once("value").then((snap) => {
                     if (snap.exists()) {
                         let adminToken = snap.val().toString();
@@ -528,14 +741,13 @@
                         let formData = new FormData();
                         formData.append("token", adminToken);
                         formData.append("title", "📦 الطلبات (آيفون)");
-                        formData.append("message", `تم طلب منتج جديد من نسخة الويب برقم: ${randomId}`);
+                        formData.append("message", `تم طلب منتج جديد من نسخة الويب بواسطة المتجر (${currentAccountShop}) برقم: ${randomId}`);
 
                         fetch(scriptUrl, { method: "POST", body: formData }).catch(e => console.log(e));
                     }
                 });
 
-                // إخفاء اللودينج وإفراغ السلة
-                document.getElementById("loadingOverlay").style.display = "none";
+                hideLoading();
                 cart = [];
                 updateCartBadge();
                 
@@ -543,7 +755,7 @@
                 navigateTo("mainPage");
                 document.getElementById("btnFinalOrder").disabled = false;
             }).catch(error => {
-                document.getElementById("loadingOverlay").style.display = "none";
+                hideLoading();
                 document.getElementById("btnFinalOrder").disabled = false;
                 showDialog("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة لاحقاً.");
             });
