@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق سنمار للآيفون</title>
     
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#FC5700">
+    <meta name="apple-mobile-web-app-title" content="سنمار">
+    
     <style>
         body {
             margin: 0;
@@ -50,7 +55,6 @@
     </div>
 
     <script>
-        // 🟢 تم وضع إعدادات الفايربيس الخاصة بك هنا بنجاح
         const firebaseConfig = {
             apiKey: "AIzaSyCtuy0-AraSFzMRxdWA3_B4fZg0RUahubs",
             authDomain: "alihsn-3c914.firebaseapp.com",
@@ -66,7 +70,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // قراءة مباشرة من مسار tabel ليتأكد أصحاب الآيفون من عمل السيرفر
+        // قراءة مباشرة من مسار tabel
         database.ref("tabel").on("value", (snapshot) => {
             const data = snapshot.val();
             if(data) {
