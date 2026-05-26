@@ -46,28 +46,37 @@
     
     <div class="container">
         <p>هذه النسخة مخصصة لأجهزة الآيفون وتعمل بكفاءة عالية.</p>
-        <div id="loading">جاري إعداد الاتصال بالسيرفر...</div>
+        <div id="loading">جاري جلب البيانات من السيرفر...</div>
     </div>
 
     <script>
-        // ⚠️ هنا سنضع معلومات الربط الخاصة بالفايربيس لاحقاً لكي يقرأ الأرصدة والبيانات
+        // 🟢 تم وضع إعدادات الفايربيس الخاصة بك هنا بنجاح
         const firebaseConfig = {
-            apiKey: "تعديل_لاحق",
-            authDomain: "تعديل_لاحق",
-            databaseURL: "تعديل_لاحق",
-            projectId: "تعديل_لاحق",
-            storageBucket: "تعديل_لاحق",
-            messagingSenderId: "تعديل_لاحق",
-            appId: "تعديل_لاحق"
+            apiKey: "AIzaSyCtuy0-AraSFzMRxdWA3_B4fZg0RUahubs",
+            authDomain: "alihsn-3c914.firebaseapp.com",
+            databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com",
+            projectId: "alihsn-3c914",
+            storageBucket: "alihsn-3c914.firebasestorage.app",
+            messagingSenderId: "289747444726",
+            appId: "1:289747444726:web:48ea4ef755efa4d66d9dd7",
+            measurementId: "G-D02EQ3CMW2"
         };
         
-        // تشغيل الفايربيس عميانياً الآن لحين ربط المفاتيح
-        try {
-            firebase.initializeApp(firebaseConfig);
-            document.getElementById("loading").innerText = "الموقع جاهز لربطه بقاعدة البيانات! ✅";
-        } catch(e) {
-            document.getElementById("loading").innerText = "الموقع يعمل بنجاح كواجهة تجريبية.";
-        }
+        // تشغيل الفايربيس
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // قراءة مباشرة من مسار tabel ليتأكد أصحاب الآيفون من عمل السيرفر
+        database.ref("tabel").on("value", (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                document.getElementById("loading").innerText = "حالة التطبيق الحالية في السيرفر: " + data.mror;
+            } else {
+                document.getElementById("loading").innerText = "تم الاتصال بالسيرفر، ولكن المسار فارغ أو مقفل بالقواعد.";
+            }
+        }, (error) => {
+            document.getElementById("loading").innerText = "خطأ في الاتصال: " + error.message;
+        });
     </script>
 </body>
 </html>
