@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق سنمار للآيفون</title>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+        }
+        .header {
+            background-color: #FC5700; /* لون سنمار البرتقالي */
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            padding: 20px;
+        }
+        .btn {
+            background-color: #FC5700;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+
+    <div class="header">مرحباً بك في سنمار (نسخة الويب)</div>
+    
+    <div class="container">
+        <p>هذه النسخة مخصصة لأجهزة الآيفون وتعمل بكفاءة عالية.</p>
+        <div id="loading">جاري إعداد الاتصال بالسيرفر...</div>
+    </div>
+
+    <script>
+        // ⚠️ هنا سنضع معلومات الربط الخاصة بالفايربيس لاحقاً لكي يقرأ الأرصدة والبيانات
+        const firebaseConfig = {
+            apiKey: "تعديل_لاحق",
+            authDomain: "تعديل_لاحق",
+            databaseURL: "تعديل_لاحق",
+            projectId: "تعديل_لاحق",
+            storageBucket: "تعديل_لاحق",
+            messagingSenderId: "تعديل_لاحق",
+            appId: "تعديل_لاحق"
+        };
+        
+        // تشغيل الفايربيس عميانياً الآن لحين ربط المفاتيح
+        try {
+            firebase.initializeApp(firebaseConfig);
+            document.getElementById("loading").innerText = "الموقع جاهز لربطه بقاعدة البيانات! ✅";
+        } catch(e) {
+            document.getElementById("loading").innerText = "الموقع يعمل بنجاح كواجهة تجريبية.";
+        }
+    </script>
+</body>
+</html>
