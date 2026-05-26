@@ -1,0 +1,16 @@
+{
+  "short_name": "سنمار",
+  "name": "تطبيق سنمار ",
+  "icons": [
+    {
+      "src": "https://krstea.github.io/snmar/icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/snmar/",
+  "background_color": "#f4f4f4",
+  "theme_color": "#FC5700",
+  "display": "standalone",
+  "orientation": "portrait"
+}
