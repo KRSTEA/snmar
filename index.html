@@ -41,7 +41,7 @@
         }
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* عرض منتجين بجانب بعض في الآيفون */
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-top: 15px;
         }
@@ -133,7 +133,33 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // 🟢 جلب البيانات من مسار fbd الحقيقي
+        // دالة معالجة وتحويل روابط كوكل درايف لتعمل في المتصفح 100%
+        function getDirectDriveUrl(url) {
+            if (!url) return "https://via.placeholder.com/150";
+            
+            if (url.includes("drive.google.com")) {
+                let fileId = "";
+                
+                // استخراج الـ ID إذا كان الرابط يحتوي على uc?id=
+                if (url.includes("id=")) {
+                    const parts = url.split("id=");
+                    if (parts[1]) fileId = parts[1].split("&")[0];
+                } 
+                // استخراج الـ ID إذا كان الرابط يحتوي على /d/
+                else if (url.includes("/d/")) {
+                    const parts = url.split("/d/");
+                    if (parts[1]) fileId = parts[1].split("/")[0];
+                }
+                
+                if (fileId) {
+                    // استخدام البروكسي المباشر للتغلب على حظر سفاري والآيفون لروابط درايف
+                    return `https://docs.google.com/uc?export=view&id=${fileId}`;
+                }
+            }
+            return url;
+        }
+
+        // جلب البيانات من مسار fbd
         database.ref("fbd").on("value", (snapshot) => {
             const productsContainer = document.getElementById("productsContainer");
             const loadingText = document.getElementById("loading");
@@ -146,15 +172,16 @@
                 snapshot.forEach((childSnapshot) => {
                     const product = childSnapshot.val();
                     
-                    // ربط المفاتيح بحسب الفايربيس الخاص بك تماماً
                     const pName = product.name || "منتج بدون اسم";
                     const pPrice = product.sar || "0";
                     const pOldPrice = product.dna || "";
-                    const pImage = product.img1 || "https://via.placeholder.com/150";
+                    
+                    // تحويل الرابط هنا قبل وضعه في الوسم
+                    const pImage = getDirectDriveUrl(product.img1);
 
                     const cardHtml = `
                         <div class="product-card">
-                            <img src="${pImage}" alt="${pName}" onerror="this.src='https://via.placeholder.com/150';">
+                            <img src="${pImage}" alt="${pName}" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
                             <div class="product-details">
                                 <h3 class="product-name">${pName}</h3>
                                 <div class="price-container">
