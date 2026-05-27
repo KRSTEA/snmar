@@ -41,25 +41,42 @@
         .product-title { font-size: 14px; font-weight: bold; margin: 0 0 5px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .product-price-main { color: var(--main-color); font-weight: bold; font-size: 15px; }
 
-        /* شاشة التفاصيل (alard) */
-        .slider-container { width: 100%; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; background: #eaeaea; border-radius: 12px; position: relative; }
-        .slider-container img { width: 100%; flex-shrink: 0; height: 280px; object-fit: contain; scroll-snap-align: start; }
-        .detail-title { font-size: 18px; font-weight: bold; margin: 15px 0; }
-        .price-boxes { display: flex; gap: 10px; margin-bottom: 15px; }
-        .price-box { flex: 1; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; }
-        .price-box span { display: block; font-size: 12px; color: #777; }
-        .price-box strong { font-size: 16px; color: #222; }
-        .price-box.highlight strong { color: var(--main-color); }
-        .input-price-field { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; }
-        .input-price-field label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 5px; }
-        .input-price-field input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; text-align: center; color: var(--main-color); font-weight: bold; }
-        .description-box { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; line-height: 1.6; margin-bottom: 15px; font-size: 14px; white-space: pre-line; }
+        /* التعديل الجديد لشاشة تفاصيل المنتج (alard) ليطابق الصورة تماماً */
+        #alardPage { background-color: #fcfcfc; padding: 0; }
+        .slider-container { width: 100%; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; background: #fff; position: relative; margin-bottom: 10px; }
+        .slider-container img { width: 100%; flex-shrink: 0; height: 320px; object-fit: contain; scroll-snap-align: start; }
+        
+        .detail-title { font-size: 20px; font-weight: bold; text-align: center; margin: 15px 0 20px 0; color: #111; }
+        
+        .price-boxes { display: flex; gap: 15px; padding: 0 15px; margin-bottom: 15px; }
+        .price-box { flex: 1; background: white; border: 1px solid #f0f0f0; border-radius: 14px; padding: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .price-box span { display: block; font-size: 14px; font-weight: bold; color: #222; margin-bottom: 6px; }
+        .price-box strong { font-size: 16px; font-weight: bold; }
+        .price-box.highlight strong { color: #2e59a7; } /* لون سعر الجملة الأزرق */
+        .price-box.low-price strong { color: #c62828; } /* لون أدنى سعر للبيع الأحمر */
+        
+        /* صندوق صافي الربح التلقائي المضاف حسب التصميم */
+        .profit-badge-container { display: flex; justify-content: center; padding: 0 15px; margin-bottom: 20px; }
+        .profit-badge { background-color: #e8ebf5; color: #2e59a7; padding: 8px 25px; border-radius: 12px; font-size: 14px; font-weight: bold; text-align: center; width: 100%; max-width: 280px; }
 
-        /* أزرار تفاصيل ثابتة بالأسفل */
-        .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -3px 10px rgba(0,0,0,0.1); padding: 12px; display: flex; gap: 10px; z-index: 90; }
-        .btn-half { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; text-align: center; }
-        .btn-download { background-color: #555; color: white; }
-        .btn-cart-add { background-color: var(--main-color); color: white; }
+        /* حقل تحديد سعر البيع المطابق للصورة */
+        .input-price-field { background: white; border: 1px solid #f0f0f0; border-radius: 16px; margin: 0 15px 20px 15px; padding: 20px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); text-align: center; }
+        .input-price-field label { font-size: 16px; font-weight: bold; color: #111; display: block; margin-bottom: 12px; }
+        .input-price-field input { width: 100%; max-width: 280px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 25px; font-size: 16px; text-align: center; color: #555; background-color: #f7f7f7; outline: none; }
+        .price-warn { font-size: 11px; color: #cca000; margin-top: 8px; display: block; font-weight: bold; }
+
+        /* صندوق المواصفات والمميزات المطور */
+        .spec-container { background: white; border: 1px solid #f0f0f0; border-radius: 16px; margin: 0 15px 30px 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .spec-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5f5f5; padding-bottom: 10px; margin-bottom: 15px; }
+        .spec-title { font-size: 16px; font-weight: bold; color: #111; }
+        .btn-copy-specs { background: #e8ebf5; color: #2e59a7; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .description-box { line-height: 1.8; font-size: 14px; color: #444; white-space: pre-line; text-align: right; }
+
+        /* شريط الأزرار السفلي الثابت المطابق تماماً لألوان وأشكال أزرار الصورة */
+        .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.06); padding: 12px 15px; display: flex; gap: 12px; z-index: 90; }
+        .btn-half { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-download { background-color: #2a1b9e; color: white; } /* الزر البنفسجي */
+        .btn-cart-add { background-color: #ff5700; color: white; } /* الزر البرتقالي */
 
         /* شاشة السلة */
         .cart-item { background: white; padding: 10px; border-radius: 8px; border: 1px solid #eee; display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
@@ -171,25 +188,38 @@
             
             <div class="price-boxes">
                 <div class="price-box highlight">
-                    <span>سعر الجملة (sar)</span>
-                    <strong id="detailSar">0</strong> د.ع
+                    <span>سعر الجملة</span>
+                    <strong id="detailSar">0</strong>
                 </div>
-                <div class="price-box">
-                    <span>أدنى سعر للبيع (dna)</span>
-                    <strong id="detailDna">0</strong> د.ع
+                <div class="price-box low-price">
+                    <span>أدنى سعر للبيع</span>
+                    <strong id="detailDna">0</strong>
+                </div>
+            </div>
+
+            <div class="profit-badge-container">
+                <div class="profit-badge">
+                    ربحك الصافي : <span id="liveProfitVal">0</span> لكل قطعة
                 </div>
             </div>
 
             <div class="input-price-field">
-                <label>حدد سعر البيع للزبون (د.ع):</label>
-                <input type="number" id="customerPriceInput" oninput="validateLivePrice()">
+                <label>حدد سعر البيع</label>
+                <input type="number" id="customerPriceInput" placeholder="ادخل السعر هنا" oninput="validateLivePrice()">
+                <span class="price-warn">⚠️ يجب أن يكون السعر يساوي أو أعلى من الحد الأدنى</span>
             </div>
 
-            <div class="description-box" id="detailOsf">الوصف هنا...</div>
+            <div class="spec-container">
+                <div class="spec-header">
+                    <span class="spec-title">المواصفات</span>
+                    <button class="btn-copy-specs" onclick="copySpecsText()">📄 نسخ المواصفات</button>
+                </div>
+                <div class="description-box" id="detailOsf">الوصف هنا...</div>
+            </div>
             
             <div class="fixed-bottom-bar">
-                <button class="btn-half btn-download" onclick="downloadProductImages()">تحميل الصور</button>
-                <button class="btn-half btn-cart-add" onclick="addToCart()">إضافة للسلة</button>
+                <button class="btn-half btn-download" onclick="downloadProductImages()">📥 تحميل الصور</button>
+                <button class="btn-half btn-cart-add" onclick="addToCart()">🛒 شراء الآن</button>
             </div>
         </div>
 
@@ -286,10 +316,8 @@
         let cart = [];
         let pageHistory = ['mainPage'];
 
-        // مسار الحسابات الموحد والمتوافق مع سكيتشوير والـ Rules الخاصة بك
         const fdb_users = database.ref("fdb_users");
 
-        // فحص حالة الجلسة فور فتح الصفحة
         window.addEventListener('DOMContentLoaded', () => {
             checkUserSession();
         });
@@ -349,7 +377,6 @@
             }
         }
 
-        // ================== [ منطق تسجيل الدخول عبر المسارات المباشرة ] ==================
         function processLogin() {
             const phone = document.getElementById("loginPhone").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -361,13 +388,11 @@
 
             showLoading("جاري التحقق من الحساب...");
 
-            // جلب البيانات مباشرة من عقدة رقم الهاتف داخل مسار fdb_users
             fdb_users.child(phone).once("value").then((snapshot) => {
                 if (snapshot.exists()) {
                     let correctPassword = snapshot.hasChild("password") ? String(snapshot.child("password").val()) : "";
 
                     if (password === correctPassword) {
-                        // تخزين البيانات محلياً للمتصفح كـ SharedPreferences للويب
                         localStorage.setItem("user_phone", phone);
                         if (snapshot.hasChild("name")) {
                             localStorage.setItem("user_name", String(snapshot.child("name").val()));
@@ -376,10 +401,7 @@
                             localStorage.setItem("shop_name", String(snapshot.child("shop_name").val()));
                         }
 
-                        // تحديث حقول الـ Token الخاصة بجلسة المستخدم الحالية
-                        let updateMap = {
-                            "fcmToken": "none"
-                        };
+                        let updateMap = { "fcmToken": "none" };
 
                         fdb_users.child(phone).update(updateMap).then(() => {
                             setTimeout(() => {
@@ -403,7 +425,6 @@
             });
         }
 
-        // ================== [ منطق إنشاء الحساب عبر المسارات المباشرة ] ==================
         function processRegister() {
             const userName = document.getElementById("regUserName").value.trim();
             const shopName = document.getElementById("regShopName").value.trim();
@@ -425,24 +446,20 @@
 
             showLoading("جاري إنشاء الحساب...");
 
-            // فحص الرقم مسبقاً في مسار fdb_users
             fdb_users.child(phone).once("value").then((snapshot) => {
                 if (snapshot.exists()) {
                     hideLoading();
                     showDialog("هذا الرقم مسجل مسبقاً!");
                 } else {
-                    // توليد معرّف عشوائي فريد من 6 مراتب رقمية مطابق للـ Java كود
                     let characters = "0123456789";
                     let finalUserId = "";
                     for (let i = 0; i < 6; i++) {
                         finalUserId += characters.charAt(Math.floor(Math.random() * characters.length));
                     }
 
-                    // توليد تاريخ اليوم بالصيغة المطلوبة
                     let now = new Date();
                     let dateNow = now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate();
 
-                    // بناء الماب وحفظه بالمسار المباشر fdb_users/phone
                     let userMap = {
                         "name": userName,
                         "shop_name": shopName,
@@ -526,6 +543,9 @@
             document.getElementById("customerPriceInput").value = currentSelectedProduct.dna || 0;
             document.getElementById("detailOsf").innerText = currentSelectedProduct.osf || 'لا يوجد مواصفات';
 
+            // حساب الأرباح الحية بشكل فوري عند فتح الصفحة
+            calculateLiveProfit();
+
             const slider = document.getElementById("sliderContainer");
             slider.innerHTML = "";
             for (let i = 1; i <= 10; i++) {
@@ -537,12 +557,35 @@
             }
         }
 
+        // دالة مضافة لحساب صافي الربح بشكل حي عند كتابة السعر لتتوافق مع بطاقة الربح بالصورة
+        function calculateLiveProfit() {
+            let inputPrice = parseFloat(document.getElementById("customerPriceInput").value) || 0;
+            let sarPrice = parseFloat(currentSelectedProduct.sar) || 0;
+            let profit = inputPrice - sarPrice;
+            if(profit < 0) profit = 0;
+            document.getElementById("liveProfitVal").innerText = profit.toLocaleString() + " د.ع";
+        }
+
         function validateLivePrice() {
             let inputPrice = parseFloat(document.getElementById("customerPriceInput").value) || 0;
             let minDna = parseFloat(currentSelectedProduct.dna) || 0;
             let inputField = document.getElementById("customerPriceInput");
-            if (inputPrice < minDna) { inputField.style.borderColor = "red"; } 
-            else { inputField.style.borderColor = "#ddd"; }
+            if (inputPrice < minDna) { 
+                inputField.style.borderColor = "red"; 
+            } else { 
+                inputField.style.borderColor = "#e0e0e0"; 
+            }
+            calculateLiveProfit();
+        }
+
+        // وظيفة إضافية لزر نسخ المواصفات المريح للتاجر
+        function copySpecsText() {
+            const textToCopy = document.getElementById("detailOsf").innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showDialog("تم نسخ مواصفات المنتج بنجاح!");
+            }).catch(() => {
+                showDialog("فشل النسخ، يرجى النسخ يدوياً.");
+            });
         }
 
         function downloadProductImages() {
