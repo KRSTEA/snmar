@@ -616,7 +616,7 @@
 
         // جلب وإدارة السلايدر المتوافق تماماً مع هيكلية فروع سكتشوير والـ Handler التلقائي
         function loadSliderData() {
-            database.ref("slider_data").once("value", (snapshot) => {
+            database.ref("fdb_alan/slider_data").once("value", (snapshot) => {
                 const pagerAlan = document.getElementById("pagerAlan");
                 const dotsLayout = document.getElementById("dotsLayout");
                 pagerAlan.innerHTML = "";
