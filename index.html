@@ -82,6 +82,15 @@
         .btn-copy-specs { background: #e8ebf5; color: #2e59a7; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; }
         .description-box { line-height: 1.8; font-size: 14px; color: #444; white-space: pre-line; text-align: right; }
 
+        /* ستايل صفحة الطلبات الاحترافي */
+        .orders-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; }
+        .order-card { background: white; border-radius: 14px; padding: 15px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
+        .order-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f9f9f9; padding-bottom: 8px; }
+        .order-customer { font-size: 15px; font-weight: bold; color: #222; }
+        .order-status { font-size: 13px; font-weight: bold; padding: 4px 10px; border-radius: 20px; background-color: #f5f5f5; }
+        .order-card-body { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-top: 4px; }
+        .order-price { font-weight: bold; color: var(--main-color); font-size: 14px; }
+
         /* شريط الأزرار السفلي لصفحة التفاصيل */
         .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.06); padding: 12px 15px; display: flex; gap: 12px; z-index: 90; }
         .btn-half { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -241,7 +250,7 @@
 
             <div class="input-price-field">
                 <label>حدد سعر البيع</label>
-                <input type="number" id="customerPriceInput" placeholder="ادخل السعر هنا" oninput="validateLivePrice()">
+                <input type="number" id="customerPriceInput" placeholder="اكتب سعر الزبون هنا .." oninput="validateLivePrice()">
                 <span class="price-warn">⚠️ يجب أن يكون السعر يساوي أو أعلى من الحد الأدنى</span>
             </div>
 
@@ -327,10 +336,9 @@
         </div>
 
         <div id="ordersPage" class="page">
-            <div class="empty-state">
-                <span class="icon">📦</span>
-                صفحة الطلبات قريباً...
-            </div>
+            <div class="section-title">طلباتي</div>
+            <div id="ordersLoading" style="text-align: center; margin-top: 30px; font-weight: bold; color: #777;">جاري تحميل قائمة الطلبات ...</div>
+            <div id="ordersContainer" class="orders-list"></div>
         </div>
 
         <div id="challengesPage" class="page">
@@ -411,13 +419,13 @@
             const savedPhone = localStorage.getItem("user_phone");
             if (savedPhone) {
                 document.getElementById("mainHeader").style.display = "flex";
-                // يتم التحقق هنا أيضاً عند بدء الجلسة
                 if (pageHistory[pageHistory.length - 1] === 'mainPage') {
                     document.getElementById("mainBottomNav").style.display = "flex";
                 }
                 navigateTo("mainPage", "تطبيق سنمار");
                 listenToProducts();
                 loadSliderData();
+                listenToOrders(); // بدء الاستماع للطلبات تلقائياً
             } else {
                 document.getElementById("mainHeader").style.display = "none";
                 document.getElementById("mainBottomNav").style.display = "none";
@@ -451,14 +459,12 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             
-            // تخصيص ظهور سهم العودة فقط بالصفحات الداخلية
             if (pageId === 'mainPage' || pageId === 'ordersPage' || pageId === 'challengesPage' || pageId === 'settingsPage') {
                 document.getElementById("backBtn").style.display = 'none';
             } else {
                 document.getElementById("backBtn").style.display = 'block';
             }
 
-            // التحكم الذكي في إظهار وإخفاء شريط التنقل السفلي بحسب الصفحة المطلوبة
             const bottomNav = document.getElementById("mainBottomNav");
             const savedPhone = localStorage.getItem("user_phone");
             if (savedPhone && (pageId === 'mainPage' || pageId === 'ordersPage' || pageId === 'challengesPage' || pageId === 'settingsPage')) {
@@ -484,11 +490,10 @@
             }
         }
 
-        // إدارة شريط التنقل السفلي بشكل دقيق ومستقل
         function handleBottomNav(pageId, navItemId) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById(navItemId).classList.add('active');
-            pageHistory = [pageId]; // تصفير السجل عند التنقل الرئيسي لمنع تداخل الصفحات
+            pageHistory = [pageId]; 
             navigateTo(pageId, "تطبيق سنمار");
         }
 
@@ -526,6 +531,7 @@
                                 navigateTo("mainPage", "تطبيق سنمار");
                                 listenToProducts();
                                 loadSliderData();
+                                listenToOrders();
                             }, 500);
                         });
                     } else {
@@ -600,6 +606,7 @@
                             navigateTo("mainPage", "تطبيق سنمار");
                             listenToProducts();
                             loadSliderData();
+                            listenToOrders();
                         }, 1500);
                     }).catch(e => {
                         hideLoading();
@@ -626,7 +633,6 @@
             return url;
         }
 
-        // جلب وإدارة السلايدر المتوافق تماماً مع هيكلية فروع سكتشوير والـ Handler التلقائي
         function loadSliderData() {
             database.ref("fdb_alan/slider_data").once("value", (snapshot) => {
                 const pagerAlan = document.getElementById("pagerAlan");
@@ -655,7 +661,6 @@
                 if (alanDataList.length > 0) {
                     document.getElementById("sliderWrapper").style.display = "block";
                     alanDataList.forEach((slide, index) => {
-                        // إضافة الصورة
                         let imgEl = document.createElement("img");
                         imgEl.src = slide.url;
                         imgEl.onclick = () => {
@@ -668,14 +673,12 @@
                         };
                         pagerAlan.appendChild(imgEl);
 
-                        // إضافة النقطة الخاصة بالسلايدر المتمدد
                         let dotEl = document.createElement("div");
                         dotEl.className = `dot ${index === 0 ? 'active' : ''}`;
                         dotEl.id = `dot-${index}`;
                         dotsLayout.appendChild(dotEl);
                     });
 
-                    // تفعيل الأنيميشن والتمرير التلقائي كل 5 ثوانٍ كالمستودع البرمجي المرفق بالملف
                     let currentSlide = 0;
                     setInterval(() => {
                         if (alanDataList.length <= 1) return;
@@ -684,7 +687,6 @@
                         const slideWidth = pagerAlan.clientWidth;
                         pagerAlan.scrollTo({ left: slideWidth * currentSlide, behavior: 'smooth' });
                         
-                        // تحديث حالة النقاط النشطة والمتمددة
                         document.querySelectorAll(".dot").forEach(d => d.classList.remove("active"));
                         const activeDot = document.getElementById(`dot-${currentSlide}`);
                         if(activeDot) activeDot.classList.add("active");
@@ -696,7 +698,6 @@
             });
         }
 
-        // جلب وبناء المنتجات والأقسام التلقائية مع فلترة الـ Category
         function listenToProducts() {
             database.ref("fbd").on("value", (snapshot) => {
                 const container = document.getElementById("productsContainer");
@@ -704,7 +705,6 @@
                 const scroller = document.getElementById("categoriesScroller");
                 
                 container.innerHTML = "";
-                // الاحتفاظ بزر "الكل" الأساسي
                 scroller.innerHTML = '<div class="category-chip active" id="chip-all" onclick="filterByCategory(\'all\')">الكل</div>';
                 
                 if (snapshot.exists()) {
@@ -720,7 +720,6 @@
                         }
                     });
 
-                    // بناء أزرار الأقسام المتواجدة ديناميكياً
                     categoriesFound.forEach(cat => {
                         scroller.innerHTML += `<div class="category-chip" id="chip-${cat}" onclick="filterByCategory('${cat}')">${cat}</div>`;
                     });
@@ -732,7 +731,6 @@
             });
         }
 
-        // دالة طباعة شبكة المنتجات بالصفحة الرئيسية مع دعم الفلترة الكاملة وحذف أيقونة القلب
         function renderProductsGrid() {
             const container = document.getElementById("productsContainer");
             container.innerHTML = "";
@@ -741,7 +739,6 @@
             Object.keys(allProducts).forEach(key => {
                 const prod = allProducts[key];
                 
-                // فلترة المنتجات بحسب القسم المختار
                 if (activeCategory !== 'all' && prod.category !== activeCategory) {
                     return; 
                 }
@@ -764,7 +761,6 @@
             }
         }
 
-        // عند الضغط على قسم معين يتم تفعيل الفلتر فوراً
         function filterByCategory(categoryName) {
             activeCategory = categoryName;
             document.querySelectorAll(".category-chip").forEach(el => el.classList.remove("active"));
@@ -832,21 +828,139 @@
             });
         }
 
+        // جلب وحفظ الصور مباشرة على الهاتف بشكل صحيح عبر الـ Fetch API
         function downloadProductImages() {
             let count = 0;
+            showLoading("جاري بدء تحميل الصور...");
+            
             for (let i = 1; i <= 10; i++) {
                 let imgKey = "img" + i;
                 if (currentSelectedProduct[imgKey]) {
-                    let link = document.createElement('a');
-                    link.href = getBypassedImageUrl(currentSelectedProduct[imgKey]);
-                    link.download = `${currentSelectedProduct.name || 'image'}_${i}.jpg`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    let imgUrl = getBypassedImageUrl(currentSelectedProduct[imgKey]);
+                    
+                    fetch(imgUrl)
+                        .then(response => response.blob())
+                        .then(blob => {
+                            let blobUrl = window.URL.createObjectURL(blob);
+                            let link = document.createElement('a');
+                            link.href = blobUrl;
+                            link.download = `${currentSelectedProduct.name || 'image'}_${i}.jpg`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            window.URL.revokeObjectURL(blobUrl);
+                        }).catch(e => console.log("خطأ في تحميل الصورة:", e));
                     count++;
                 }
             }
-            showDialog(`تم بدء تحميل عدد (${count}) من الصور بنجاح!`);
+            hideLoading();
+            showDialog(`تم بدء تحميل عدد (${count}) من الصور بنجاح على الهاتف!`);
+        }
+
+        // دالة جلب قائمة الطلبات من Firebase وعرضها في صفحة الطلبات لشريط السفلي
+        function listenToOrders() {
+            const currentPhone = localStorage.getItem("user_phone");
+            if(!currentPhone) return;
+
+            database.ref("all_orders").on("value", (snapshot) => {
+                const container = document.getElementById("ordersContainer");
+                document.getElementById("ordersLoading").style.display = "none";
+                container.innerHTML = "";
+
+                if (snapshot.exists()) {
+                    let ordersData = snapshot.val();
+                    let hasOrders = false;
+
+                    Object.keys(ordersData).forEach(key => {
+                        let item = ordersData[key];
+                        
+                        // فلترة الطلبات لإظهار طلبات المستخدم الحالي فقط
+                        if (String(item.user_phone) === String(currentPhone)) {
+                            hasOrders = true;
+                            
+                            // 1. تحديد لون حالة الطلب بنفس منطق الألوان الخاص بك
+                            let statusColor = "#B71C1C"; // الإجراء الافتراضي
+                            let status = String(item.status || "قيد الانتظار");
+                            if (status === "قيد التوصيل") statusColor = "#0D47A1";
+                            else if (status === "قيد الانتظار") statusColor = "#E65100";
+                            else if (status === "تم التوصيل") statusColor = "#1B5E20";
+
+                            // 2. معالجة التاريخ والوقت
+                            let dateOnly = "بدون تاريخ";
+                            try {
+                                let rawDate = String(item.order_date || "");
+                                dateOnly = rawDate.contains(" ") ? rawDate.split(" ")[0] : rawDate;
+                                dateOnly = dateOnly.replace("٠","0").replace("١","1").replace("٢","2")
+                                                   .replace("٣","3").replace("٤","4").replace("٥","5")
+                                                   .replace("٦","6").replace("٧","7").replace("٨","8")
+                                                   .replace("٩","9");
+                            } catch(e) {
+                                dateOnly = String(item.order_date || "");
+                            }
+
+                            // 3. حساب عدد القطع الكلي داخل الطلب من خلال مصفوفة السلة
+                            let totalPieces = 0;
+                            try {
+                                if (item.cart_items) {
+                                    let tempItems = JSON.parse(item.cart_items);
+                                    tempItems.forEach(product => {
+                                        if (product.count) {
+                                            totalPieces += parseInt(product.count);
+                                        }
+                                    });
+                                }
+                            } catch(e) { totalPieces = 0; }
+
+                            // 4. تنسيق السعر الكلي
+                            let formattedPrice = String(item.total_price);
+                            try {
+                                let rawPrice = String(item.total_price).replace(/[^0-9]/g, "");
+                                if(rawPrice !== "") {
+                                    formattedPrice = Number(rawPrice).toLocaleString() + " د.ع";
+                                }
+                            } catch(e) {}
+
+                            // بناء عنصر الكارت لصفحة الطلبات
+                            let orderHtml = `
+                                <div class="order-card" onclick="openOrderDetails('${item.order_id}')">
+                                    <div class="order-card-header">
+                                        <span class="order-customer">${item.cus_name || 'زبون مجهول'}</span>
+                                        <span class="order-status" style="color: ${statusColor};">${status}</span>
+                                    </div>
+                                    <div class="order-card-body">
+                                        <span>📅 التاريخ: ${dateOnly}</span>
+                                        <span>📦 عدد القطع: ${totalPieces}</span>
+                                    </div>
+                                    <div class="order-card-body" style="border-top: 1px dashed #f5f5f5; padding-top: 5px;">
+                                        <span>السعر الإجمالي:</span>
+                                        <span class="order-price">${formattedPrice}</span>
+                                    </div>
+                                </div>
+                            `;
+                            container.innerHTML += orderHtml;
+                        }
+                    });
+
+                    if(!hasOrders) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <span class="icon">📦</span>
+                                لم تقم بإجراء أي طلبات حتى الآن.
+                            </div>`;
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <span class="icon">📦</span>
+                            لا توجد طلبات في النظام حالياً.
+                        </div>`;
+                }
+            });
+        }
+
+        // دالة الضغط على طلب معين (فارغة حالياً وجاهزة للربط مستقبلاً)
+        function openOrderDetails(orderId) {
+            // سأشرحها لك في وقت لاحق .اجعلها فارغه حاليا.
         }
 
         function addToCart() {
