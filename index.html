@@ -411,7 +411,10 @@
             const savedPhone = localStorage.getItem("user_phone");
             if (savedPhone) {
                 document.getElementById("mainHeader").style.display = "flex";
-                document.getElementById("mainBottomNav").style.display = "flex";
+                // يتم التحقق هنا أيضاً عند بدء الجلسة
+                if (pageHistory[pageHistory.length - 1] === 'mainPage') {
+                    document.getElementById("mainBottomNav").style.display = "flex";
+                }
                 navigateTo("mainPage", "تطبيق سنمار");
                 listenToProducts();
                 loadSliderData();
@@ -453,6 +456,15 @@
                 document.getElementById("backBtn").style.display = 'none';
             } else {
                 document.getElementById("backBtn").style.display = 'block';
+            }
+
+            // التحكم الذكي في إظهار وإخفاء شريط التنقل السفلي بحسب الصفحة المطلوبة
+            const bottomNav = document.getElementById("mainBottomNav");
+            const savedPhone = localStorage.getItem("user_phone");
+            if (savedPhone && (pageId === 'mainPage' || pageId === 'ordersPage' || pageId === 'challengesPage' || pageId === 'settingsPage')) {
+                bottomNav.style.display = 'flex';
+            } else {
+                bottomNav.style.display = 'none';
             }
             
             if (pageHistory[pageHistory.length - 1] !== pageId) { pageHistory.push(pageId); }
