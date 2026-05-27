@@ -59,7 +59,7 @@
         .product-title { font-size: 14px; font-weight: bold; margin: 0 0 5px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #222; }
         .product-price-main { color: var(--main-color); font-weight: bold; font-size: 15px; }
 
-        /* تفاصيل المنتج ليطابق الصورة تماماً */
+        /* تفاصيل المنتج */
         #alardPage { background-color: #fcfcfc; padding: 0; }
         .slider-container { width: 100%; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; background: #fff; position: relative; margin-bottom: 10px; }
         .slider-container img { width: 100%; flex-shrink: 0; height: 320px; object-fit: contain; scroll-snap-align: start; }
@@ -82,14 +82,29 @@
         .btn-copy-specs { background: #e8ebf5; color: #2e59a7; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; }
         .description-box { line-height: 1.8; font-size: 14px; color: #444; white-space: pre-line; text-align: right; }
 
-        /* ستايل صفحة الطلبات الاحترافي */
+        /* ستايل صفحة الطلبات الاحترافي المعدل */
         .orders-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; }
-        .order-card { background: white; border-radius: 14px; padding: 15px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
+        .order-card { background: white; border-radius: 14px; padding: 15px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px; cursor: pointer; position: relative; }
         .order-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f9f9f9; padding-bottom: 8px; }
         .order-customer { font-size: 15px; font-weight: bold; color: #222; }
         .order-status { font-size: 13px; font-weight: bold; padding: 4px 10px; border-radius: 20px; background-color: #f5f5f5; }
-        .order-card-body { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-top: 4px; }
+        .order-card-body { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-top: 4px; align-items: center; }
         .order-price { font-weight: bold; color: var(--main-color); font-size: 14px; }
+
+        /* ستايل زر الإلغاء المحاكي لسكتشوير */
+        .lin-hdf-btn { border: none; padding: 6px 14px; font-size: 12px; font-weight: bold; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .lin-hdf-btn.active-cancel { background-color: #990000; color: white; }
+        .lin-hdf-btn.disabled-cancel { background-color: white; color: black; border: 1.5px solid #B71C1C; cursor: not-allowed; }
+
+        /* تخصيص نافذة الإلغاء المخصصة لسنمار */
+        .snmar-confirm-dialog-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:flex; justify-content:center; align-items:center; z-index:3500; visibility:hidden; opacity:0; transition: 0.2s; }
+        .snmar-confirm-dialog { background: white; width: 80%; max-width: 320px; border-radius: 25px; padding: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transform: scale(0.8); transition: 0.2s; }
+        .snmar-confirm-dialog-overlay.show { visibility: visible; opacity: 1; }
+        .snmar-confirm-dialog-overlay.show .snmar-confirm-dialog { transform: scale(1); }
+        .snmar-confirm-dialog p { color: #424242; font-size: 14px; margin-bottom: 25px; font-weight: bold; }
+        .confirm-btn-container { display: flex; gap: 10px; justify-content: center; }
+        .btn-confirm-yes { background: #B71C1C; color: white; border: none; flex: 1; padding: 10px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-confirm-no { background: transparent; color: #9E9E9E; border: none; flex: 0.7; padding: 10px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
         /* شريط الأزرار السفلي لصفحة التفاصيل */
         .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.06); padding: 12px 15px; display: flex; gap: 12px; z-index: 90; }
@@ -341,6 +356,8 @@
             <div id="ordersContainer" class="orders-list"></div>
         </div>
 
+        <div id="orderDetailsPage" class="page"></div>
+
         <div id="challengesPage" class="page">
             <div class="empty-state">
                 <span class="icon">🏆</span>
@@ -383,6 +400,16 @@
         </div>
     </div>
 
+    <div class="snmar-confirm-dialog-overlay" id="snmarConfirmOverlay">
+        <div class="snmar-confirm-dialog">
+            <p>هل أنت متأكد من إلغاء هذا الطلب؟</p>
+            <div class="confirm-btn-container">
+                <button class="btn-confirm-no" onclick="closeConfirmDialog()">تراجع</button>
+                <button class="btn-confirm-yes" id="btnConfirmCancelOrder">نعم، إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <p id="loadingOverlayText">جاري العمل...</p>
@@ -408,6 +435,7 @@
         let cart = [];
         let pageHistory = ['mainPage'];
         let activeCategory = 'all';
+        let orderToCancelKey = null; // لتخزين مفتاح الطلب المراد إلغاؤه مؤقتاً
 
         const fdb_users = database.ref("fdb_users");
 
@@ -425,7 +453,7 @@
                 navigateTo("mainPage", "تطبيق سنمار");
                 listenToProducts();
                 loadSliderData();
-                listenToOrders(); // بدء الاستماع للطلبات تلقائياً
+                listenToOrders();
             } else {
                 document.getElementById("mainHeader").style.display = "none";
                 document.getElementById("mainBottomNav").style.display = "none";
@@ -439,6 +467,28 @@
         }
         function closeDialog() {
             document.getElementById("snmarDialogOverlay").classList.remove("show");
+        }
+
+        // دوال نافذة التأكيد للإلغاء
+        function showConfirmDialog(orderKey) {
+            orderToCancelKey = orderKey;
+            document.getElementById("snmarConfirmOverlay").classList.add("show");
+            document.getElementById("btnConfirmCancelOrder").onclick = executeOrderCancellation;
+        }
+        function closeConfirmDialog() {
+            document.getElementById("snmarConfirmOverlay").classList.remove("show");
+            orderToCancelKey = null;
+        }
+        function executeOrderCancellation() {
+            if(orderToCancelKey) {
+                database.ref("all_orders").child(orderToCancelKey).child("status").setValue("ملغي").then(() => {
+                    closeConfirmDialog();
+                    showDialog("تم إلغاء الطلب بنجاح");
+                }).catch(() => {
+                    closeConfirmDialog();
+                    showDialog("حدث خطأ أثناء إلغاء الطلب.");
+                });
+            }
         }
 
         function showLoading(text) {
@@ -486,6 +536,7 @@
                 if(prevPage === 'cartPage') title = "السلة";
                 if(prevPage === 'checkoutPage') title = "إتمام الشراء";
                 if(prevPage === 'notificationsPage') title = "الإشعارات";
+                if(prevPage === 'orderDetailsPage') title = "تفاصيل الطلب";
                 navigateTo(prevPage, title);
             }
         }
@@ -544,7 +595,7 @@
                 }
             }).catch(err => {
                 hideLoading();
-                showDialog("خطأ في الاتصال بالقاعدة! تحقق من الـ Rules");
+                showDialog("خطأ في الاتصال بالقاعدة!");
             });
         }
 
@@ -828,7 +879,6 @@
             });
         }
 
-        // جلب وحفظ الصور مباشرة على الهاتف بشكل صحيح عبر الـ Fetch API
         function downloadProductImages() {
             let count = 0;
             showLoading("جاري بدء تحميل الصور...");
@@ -857,7 +907,7 @@
             showDialog(`تم بدء تحميل عدد (${count}) من الصور بنجاح على الهاتف!`);
         }
 
-        // دالة جلب قائمة الطلبات من Firebase وعرضها في صفحة الطلبات لشريط السفلي
+        // دالة الاستماع للطلبات مع إضافة منطق الإلغاء ونقل المفاتيح بالكامل
         function listenToOrders() {
             const currentPhone = localStorage.getItem("user_phone");
             if(!currentPhone) return;
@@ -874,12 +924,11 @@
                     Object.keys(ordersData).forEach(key => {
                         let item = ordersData[key];
                         
-                        // فلترة الطلبات لإظهار طلبات المستخدم الحالي فقط
                         if (String(item.user_phone) === String(currentPhone)) {
                             hasOrders = true;
                             
-                            // 1. تحديد لون حالة الطلب بنفس منطق الألوان الخاص بك
-                            let statusColor = "#B71C1C"; // الإجراء الافتراضي
+                            // 1. تحديد لون حالة الطلب بنفس منطق الألوان الخاص بسكتشوير
+                            let statusColor = "#B71C1C"; 
                             let status = String(item.status || "قيد الانتظار");
                             if (status === "قيد التوصيل") statusColor = "#0D47A1";
                             else if (status === "قيد الانتظار") statusColor = "#E65100";
@@ -889,7 +938,7 @@
                             let dateOnly = "بدون تاريخ";
                             try {
                                 let rawDate = String(item.order_date || "");
-                                dateOnly = rawDate.contains(" ") ? rawDate.split(" ")[0] : rawDate;
+                                dateOnly = rawDate.includes(" ") ? rawDate.split(" ")[0] : rawDate;
                                 dateOnly = dateOnly.replace("٠","0").replace("١","1").replace("٢","2")
                                                    .replace("٣","3").replace("٤","4").replace("٥","5")
                                                    .replace("٦","6").replace("٧","7").replace("٨","8")
@@ -898,7 +947,7 @@
                                 dateOnly = String(item.order_date || "");
                             }
 
-                            // 3. حساب عدد القطع الكلي داخل الطلب من خلال مصفوفة السلة
+                            // 3. حساب عدد القطع الكلي
                             let totalPieces = 0;
                             try {
                                 if (item.cart_items) {
@@ -920,9 +969,32 @@
                                 }
                             } catch(e) {}
 
-                            // بناء عنصر الكارت لصفحة الطلبات
+                            // 5. منطق زر التحكم بالإلغاء (lin_hdf) المحاكي لسكتشوير تماماً
+                            let cancelBtnHtml = "";
+                            if (status === "قيد الانتظار" || status === "ملغي") {
+                                if (status === "ملغي") {
+                                    cancelBtnHtml = `<button class="lin-hdf-btn disabled-cancel" disabled>ملغي</button>`;
+                                } else {
+                                    cancelBtnHtml = `<button class="lin-hdf-btn active-cancel" onclick="event.stopPropagation(); showConfirmDialog('${key}');">إلغاء الطلب</button>`;
+                                }
+                            }
+
+                            // بناء عنصر البطاقة مع تمرير كامل البيانات المشابهة للـ Intent
                             let orderHtml = `
-                                <div class="order-card" onclick="openOrderDetails('${item.order_id}')">
+                                <div class="order-card" onclick="openOrderDetails({
+                                    order_id: '${item.order_id || ""}',
+                                    order_date: '${item.order_date || ""}',
+                                    status: '${status}',
+                                    total_price: '${item.total_price || ""}',
+                                    order_profit: '${item.order_profit || ""}',
+                                    cart_items: \`${item.cart_items || "[]"}\`,
+                                    cus_name: '${item.cus_name || ""}',
+                                    cus_phone: '${item.cus_phone || ""}',
+                                    cus_city: '${item.cus_city || ""}',
+                                    cus_area: '${item.cus_area || ""}',
+                                    cus_point: '${item.cus_point || ""}',
+                                    delivery: '${item.delivery || ""}'
+                                })">
                                     <div class="order-card-header">
                                         <span class="order-customer">${item.cus_name || 'زبون مجهول'}</span>
                                         <span class="order-status" style="color: ${statusColor};">${status}</span>
@@ -932,8 +1004,11 @@
                                         <span>📦 عدد القطع: ${totalPieces}</span>
                                     </div>
                                     <div class="order-card-body" style="border-top: 1px dashed #f5f5f5; padding-top: 5px;">
-                                        <span>السعر الإجمالي:</span>
-                                        <span class="order-price">${formattedPrice}</span>
+                                        <div>
+                                            <span style="font-size:12px; color:#999;">السعر الإجمالي:</span>
+                                            <span class="order-price">${formattedPrice}</span>
+                                        </div>
+                                        ${cancelBtnHtml}
                                     </div>
                                 </div>
                             `;
@@ -958,9 +1033,13 @@
             });
         }
 
-        // دالة الضغط على طلب معين (فارغة حالياً وجاهزة للربط مستقبلاً)
-        function openOrderDetails(orderId) {
-            // سأشرحها لك في وقت لاحق .اجعلها فارغه حاليا.
+        // دالة التوجيه لصفحة تفاصيل الطلب مع استقبال وحفظ كل المفاتيح (مبقية فارغة للعرض مستقبلاً)
+        function openOrderDetails(orderIntentData) {
+            // توجيه المستخدم لصفحة تفاصيل الطلب مع تغيير عنوان الهيدر
+            navigateTo("orderDetailsPage", "تفاصيل الطلب");
+            
+            // هنا البيانات محفوظة وجاهزة تماماً للاستخدام عند تصميم الصفحة لاحقاً
+            console.log("تم نقل بيانات الطلب بنجاح:", orderIntentData);
         }
 
         function addToCart() {
