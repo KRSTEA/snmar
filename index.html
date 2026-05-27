@@ -14,17 +14,19 @@
         :root { --main-color: #FC5700; }
         body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; -webkit-tap-highlight-color: transparent; }
         
-        /* الهيدر الثابت */
-        .header { background-color: var(--main-color); color: white; padding: 15px; font-size: 20px; font-weight: bold; text-align: center; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
-        .header .back-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; display: none; }
-        .header .cart-icon-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; position: relative; }
-        .cart-badge { position: absolute; top: -5px; right: -5px; background: red; color: white; font-size: 11px; border-radius: 50%; padding: 2px 6px; font-weight: bold; }
+        /* الهيدر العلوي الجديد والمعدل */
+        .header { background-color: white; color: #333; padding: 12px 15px; font-size: 18px; font-weight: bold; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .header .header-center { position: absolute; left: 50%; transform: translateX(-50%); font-size: 20px; font-weight: 900; color: var(--main-color); }
+        .header .back-btn { background: none; border: none; color: #333; font-size: 20px; cursor: pointer; display: none; z-index: 5; }
+        .header .header-actions { display: flex; gap: 15px; align-items: center; z-index: 5; }
+        .header .header-btn { background: none; border: none; color: #444; font-size: 22px; cursor: pointer; position: relative; padding: 0; }
+        .cart-badge { position: absolute; top: -5px; right: -8px; background: red; color: white; font-size: 10px; border-radius: 50%; padding: 2px 5px; font-weight: bold; }
         
-        .container { padding: 15px; padding-bottom: 80px; }
+        .container { padding: 15px; padding-bottom: 90px; }
         .page { display: none; }
         .page.active { display: block; }
 
-        /* شاشات الحسابات (تسجيل الدخول وإنشاء الحساب) بستايل سنمار */
+        /* شاشات الحسابات */
         .auth-logo-container { text-align: center; padding: 30px 10px; background-color: var(--main-color); color: white; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; margin: -15px -15px 25px -15px; }
         .auth-logo { width: 60px; height: 60px; background: white; border-radius: 15px; display: inline-flex; justify-content: center; align-items: center; font-size: 30px; font-weight: bold; color: var(--main-color); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .auth-title { font-size: 18px; font-weight: bold; margin-top: 15px; margin-bottom: 5px; }
@@ -33,50 +35,68 @@
         .auth-btn-submit { background: var(--main-color); color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 10px rgba(252,87,0,0.3); }
         .auth-link { text-align: center; margin-top: 20px; font-size: 14px; color: #333; font-weight: bold; cursor: pointer; text-decoration: underline; }
 
+        /* الستايل الاحترافي للسلايدر العلوي */
+        .web-slider-wrapper { width: 100%; position: relative; margin-bottom: 20px; overflow: hidden; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .web-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+        .web-slider::-webkit-scrollbar { display: none; }
+        .web-slider img { width: 100%; flex-shrink: 0; height: 160px; object-fit: cover; scroll-snap-align: start; cursor: pointer; }
+        .slider-dots { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 10px; margin-bottom: 15px; }
+        .dot { height: 6px; width: 6px; background-color: #E4E4E4; border-radius: 100px; transition: all 0.3s ease; }
+        .dot.active { width: 24px; background-color: var(--main-color); }
+
+        /* ستايل شريط الأقسام الجديد */
+        .section-title { font-size: 16px; font-weight: bold; margin: 15px 0 10px 0; color: #222; }
+        .categories-scroller { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 15px; }
+        .categories-scroller::-webkit-scrollbar { display: none; }
+        .category-chip { background: white; border: 1px solid #e0e0e0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; white-space: nowrap; cursor: pointer; transition: 0.2s; color: #555; }
+        .category-chip.active { background: var(--main-color); color: white; border-color: var(--main-color); }
+
         /* الشاشة الرئيسية: شبكة المنتجات */
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .product-card { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; border: 1px solid #eee; cursor: pointer; }
+        .product-card { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; border: 1px solid #eee; cursor: pointer; position: relative; }
         .product-card img { width: 100%; height: 150px; object-fit: cover; background-color: #f0f0f0; }
         .product-info { padding: 10px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
-        .product-title { font-size: 14px; font-weight: bold; margin: 0 0 5px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-title { font-size: 14px; font-weight: bold; margin: 0 0 5px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #222; }
         .product-price-main { color: var(--main-color); font-weight: bold; font-size: 15px; }
 
-        /* التعديل الجديد لشاشة تفاصيل المنتج (alard) ليطابق الصورة تماماً */
+        /* تفاصيل المنتج ليطابق الصورة تماماً */
         #alardPage { background-color: #fcfcfc; padding: 0; }
         .slider-container { width: 100%; overflow-x: auto; display: flex; scroll-snap-type: x mandatory; background: #fff; position: relative; margin-bottom: 10px; }
         .slider-container img { width: 100%; flex-shrink: 0; height: 320px; object-fit: contain; scroll-snap-align: start; }
-        
         .detail-title { font-size: 20px; font-weight: bold; text-align: center; margin: 15px 0 20px 0; color: #111; }
-        
         .price-boxes { display: flex; gap: 15px; padding: 0 15px; margin-bottom: 15px; }
         .price-box { flex: 1; background: white; border: 1px solid #f0f0f0; border-radius: 14px; padding: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         .price-box span { display: block; font-size: 14px; font-weight: bold; color: #222; margin-bottom: 6px; }
         .price-box strong { font-size: 16px; font-weight: bold; }
-        .price-box.highlight strong { color: #2e59a7; } /* لون سعر الجملة الأزرق */
-        .price-box.low-price strong { color: #c62828; } /* لون أدنى سعر للبيع الأحمر */
-        
-        /* صندوق صافي الربح التلقائي المضاف حسب التصميم */
+        .price-box.highlight strong { color: #2e59a7; }
+        .price-box.low-price strong { color: #c62828; }
         .profit-badge-container { display: flex; justify-content: center; padding: 0 15px; margin-bottom: 20px; }
         .profit-badge { background-color: #e8ebf5; color: #2e59a7; padding: 8px 25px; border-radius: 12px; font-size: 14px; font-weight: bold; text-align: center; width: 100%; max-width: 280px; }
-
-        /* حقل تحديد سعر البيع المطابق للصورة */
         .input-price-field { background: white; border: 1px solid #f0f0f0; border-radius: 16px; margin: 0 15px 20px 15px; padding: 20px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); text-align: center; }
         .input-price-field label { font-size: 16px; font-weight: bold; color: #111; display: block; margin-bottom: 12px; }
         .input-price-field input { width: 100%; max-width: 280px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 25px; font-size: 16px; text-align: center; color: #555; background-color: #f7f7f7; outline: none; }
         .price-warn { font-size: 11px; color: #cca000; margin-top: 8px; display: block; font-weight: bold; }
-
-        /* صندوق المواصفات والمميزات المطور */
         .spec-container { background: white; border: 1px solid #f0f0f0; border-radius: 16px; margin: 0 15px 30px 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .spec-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5f5f5; padding-bottom: 10px; margin-bottom: 15px; }
         .spec-title { font-size: 16px; font-weight: bold; color: #111; }
         .btn-copy-specs { background: #e8ebf5; color: #2e59a7; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; }
         .description-box { line-height: 1.8; font-size: 14px; color: #444; white-space: pre-line; text-align: right; }
 
-        /* شريط الأزرار السفلي الثابت المطابق تماماً لألوان وأشكال أزرار الصورة */
+        /* شريط الأزرار السفلي لصفحة التفاصيل */
         .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.06); padding: 12px 15px; display: flex; gap: 12px; z-index: 90; }
         .btn-half { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-download { background-color: #2a1b9e; color: white; } /* الزر البنفسجي */
-        .btn-cart-add { background-color: #ff5700; color: white; } /* الزر البرتقالي */
+        .btn-download { background-color: #2a1b9e; color: white; }
+        .btn-cart-add { background-color: #ff5700; color: white; }
+
+        /* شريط التنقل السفلي الثابت للبرنامج بأكمله */
+        .main-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; z-index: 150; box-shadow: 0 -3px 10px rgba(0,0,0,0.03); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #777; font-size: 11px; font-weight: bold; cursor: pointer; width: 20%; height: 100%; gap: 4px; }
+        .nav-item .nav-icon { font-size: 20px; }
+        .nav-item.active { color: var(--main-color); }
+
+        /* شاشة فارغة / قريباً */
+        .empty-state { text-align: center; padding: 50px 20px; color: #888; font-weight: bold; font-size: 16px; }
+        .empty-state .icon { font-size: 50px; margin-bottom: 15px; display: block; }
 
         /* شاشة السلة */
         .cart-item { background: white; padding: 10px; border-radius: 8px; border: 1px solid #eee; display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
@@ -87,9 +107,9 @@
         .qty-controls { display: flex; align-items: center; gap: 10px; }
         .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: #fff; font-size: 16px; font-weight: bold; cursor: pointer; }
         .qty-val { font-weight: bold; font-size: 14px; }
-        .btn-checkout-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: var(--main-color); color: white; text-align: center; padding: 16px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; z-index: 95; }
+        .btn-checkout-fixed { position: fixed; bottom: 65px; left: 0; right: 0; background: var(--main-color); color: white; text-align: center; padding: 16px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; z-index: 95; }
 
-        /* شاشة الاستمارة المشتركة لبيانات الحقول */
+        /* شاشة الاستمارة */
         .form-group { margin-bottom: 12px; text-align: right; }
         .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #424242; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 10px; font-size: 14px; outline: none; transition: 0.2s; }
@@ -99,7 +119,7 @@
         .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
         .summary-row.total { border-bottom: none; font-weight: bold; font-size: 16px; color: var(--main-color); }
 
-        /* نافذة سنمار الاحترافية الموحدة (Custom Dialog) */
+        /* نافذة التنبيه الموحدة */
         .snmar-dialog-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:flex; justify-content:center; align-items:center; z-index:3000; visibility:hidden; opacity:0; transition: 0.2s; }
         .snmar-dialog { background: white; width: 75%; max-width: 320px; border-radius: 25px; padding: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transform: scale(0.8); transition: 0.2s; }
         .snmar-dialog-overlay.show { visibility: visible; opacity: 1; }
@@ -121,10 +141,15 @@
 
     <div class="header" id="mainHeader" style="display:none;">
         <button class="back-btn" id="backBtn" onclick="goBack()">➔</button>
-        <span id="headerTitle">تطبيق سنمار</span>
-        <button class="cart-icon-btn" onclick="openCartPage()">
-            🛒 <span class="cart-badge" id="cartBadge">0</span>
-        </button>
+        <div class="header-center">سنمار</div>
+        <div class="header-actions">
+            <button class="header-btn" onclick="openCartPage()">
+                👜 <span class="cart-badge" id="cartBadge">0</span>
+            </button>
+            <button class="header-btn" onclick="navigateTo('notificationsPage', 'الإشعارات')">
+                🔔
+            </button>
+        </div>
     </div>
     
     <div class="container">
@@ -178,6 +203,17 @@
         </div>
 
         <div id="mainPage" class="page">
+            <div class="web-slider-wrapper" id="sliderWrapper" style="display: none;">
+                <div class="web-slider" id="pagerAlan"></div>
+                <div class="slider-dots" id="dotsLayout"></div>
+            </div>
+
+            <div class="section-title">الأقسام</div>
+            <div class="categories-scroller" id="categoriesScroller">
+                <div class="category-chip active" id="chip-all" onclick="filterByCategory('all')">الكل</div>
+            </div>
+
+            <div class="section-title" id="productsGridTitle">كافة المنتجات</div>
             <div id="loading" style="text-align: center; margin-top: 30px; font-weight: bold; color: #777;">جاري تحميل المنتجات ...</div>
             <div id="productsContainer" class="products-grid"></div>
         </div>
@@ -282,6 +318,54 @@
 
             <button class="btn-checkout-fixed" id="btnFinalOrder" onclick="submitFinalOrder()">شراء</button>
         </div>
+
+        <div id="notificationsPage" class="page">
+            <div class="empty-state">
+                <span class="icon">🔔</span>
+                لا توجد إشعارات حالياً
+            </div>
+        </div>
+
+        <div id="ordersPage" class="page">
+            <div class="empty-state">
+                <span class="icon">📦</span>
+                صفحة الطلبات قريباً...
+            </div>
+        </div>
+
+        <div id="challengesPage" class="page">
+            <div class="empty-state">
+                <span class="icon">🏆</span>
+                صفحة التحديات قريباً...
+            </div>
+        </div>
+
+        <div id="settingsPage" class="page">
+            <div class="empty-state">
+                <span class="icon">⚙️</span>
+                صفحة الإعدادات قريباً...
+            </div>
+        </div>
+
+    </div>
+
+    <div class="main-bottom-nav" id="mainBottomNav" style="display: none;">
+        <div class="nav-item active" id="nav-main" onclick="handleBottomNav('mainPage', 'nav-main')">
+            <span class="nav-icon">🛒</span>
+            <span>المنتجات</span>
+        </div>
+        <div class="nav-item" id="nav-orders" onclick="handleBottomNav('ordersPage', 'nav-orders')">
+            <span class="nav-icon">📦</span>
+            <span>الطلبات</span>
+        </div>
+        <div class="nav-item" id="nav-challenges" onclick="handleBottomNav('challengesPage', 'nav-challenges')">
+            <span class="nav-icon">🏆</span>
+            <span>التحديات</span>
+        </div>
+        <div class="nav-item" id="nav-settings" onclick="handleBottomNav('settingsPage', 'nav-settings')">
+            <span class="nav-icon">⚙️</span>
+            <span>الإعدادات</span>
+        </div>
     </div>
 
     <div class="snmar-dialog-overlay" id="snmarDialogOverlay">
@@ -315,6 +399,7 @@
         let currentSelectedProduct = null;
         let cart = [];
         let pageHistory = ['mainPage'];
+        let activeCategory = 'all';
 
         const fdb_users = database.ref("fdb_users");
 
@@ -326,10 +411,13 @@
             const savedPhone = localStorage.getItem("user_phone");
             if (savedPhone) {
                 document.getElementById("mainHeader").style.display = "flex";
+                document.getElementById("mainBottomNav").style.display = "flex";
                 navigateTo("mainPage", "تطبيق سنمار");
                 listenToProducts();
+                loadSliderData();
             } else {
                 document.getElementById("mainHeader").style.display = "none";
+                document.getElementById("mainBottomNav").style.display = "none";
                 navigateToAuth("loginPage");
             }
         }
@@ -359,8 +447,14 @@
         function navigateTo(pageId, title = "تطبيق سنمار") {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            document.getElementById("headerTitle").innerText = title;
-            document.getElementById("backBtn").style.display = pageId === 'mainPage' ? 'none' : 'block';
+            
+            // تخصيص ظهور سهم العودة فقط بالصفحات الداخلية
+            if (pageId === 'mainPage' || pageId === 'ordersPage' || pageId === 'challengesPage' || pageId === 'settingsPage') {
+                document.getElementById("backBtn").style.display = 'none';
+            } else {
+                document.getElementById("backBtn").style.display = 'block';
+            }
+            
             if (pageHistory[pageHistory.length - 1] !== pageId) { pageHistory.push(pageId); }
             window.scrollTo(0, 0);
         }
@@ -373,8 +467,17 @@
                 if(prevPage === 'alardPage') title = "تفاصيل المنتج";
                 if(prevPage === 'cartPage') title = "السلة";
                 if(prevPage === 'checkoutPage') title = "إتمام الشراء";
+                if(prevPage === 'notificationsPage') title = "الإشعارات";
                 navigateTo(prevPage, title);
             }
+        }
+
+        // إدارة شريط التنقل السفلي بشكل دقيق ومستقل
+        function handleBottomNav(pageId, navItemId) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(navItemId).classList.add('active');
+            pageHistory = [pageId]; // تصفير السجل عند التنقل الرئيسي لمنع تداخل الصفحات
+            navigateTo(pageId, "تطبيق سنمار");
         }
 
         function processLogin() {
@@ -407,8 +510,10 @@
                             setTimeout(() => {
                                 hideLoading();
                                 document.getElementById("mainHeader").style.display = "flex";
+                                document.getElementById("mainBottomNav").style.display = "flex";
                                 navigateTo("mainPage", "تطبيق سنمار");
                                 listenToProducts();
+                                loadSliderData();
                             }, 500);
                         });
                     } else {
@@ -479,8 +584,10 @@
 
                             showDialog("تم التسجيل بنجاح ✅");
                             document.getElementById("mainHeader").style.display = "flex";
+                            document.getElementById("mainBottomNav").style.display = "flex";
                             navigateTo("mainPage", "تطبيق سنمار");
                             listenToProducts();
+                            loadSliderData();
                         }, 1500);
                     }).catch(e => {
                         hideLoading();
@@ -507,29 +614,157 @@
             return url;
         }
 
+        // جلب وإدارة السلايدر المتوافق تماماً مع هيكلية فروع سكتشوير والـ Handler التلقائي
+        function loadSliderData() {
+            database.ref("slider_data").once("value", (snapshot) => {
+                const pagerAlan = document.getElementById("pagerAlan");
+                const dotsLayout = document.getElementById("dotsLayout");
+                pagerAlan.innerHTML = "";
+                dotsLayout.innerHTML = "";
+                
+                let alanDataList = [];
+                if (snapshot.exists()) {
+                    const currentItem = snapshot.val();
+                    for (let i = 1; i <= 10; i++) {
+                        let imgKey = "alan" + i;
+                        let actionKey = "togh" + i;
+                        if (currentItem[imgKey]) {
+                            let imgUrl = String(currentItem[imgKey]);
+                            if (imgUrl && imgUrl !== "" && !imgUrl.includes("Error")) {
+                                alanDataList.push({
+                                    url: getBypassedImageUrl(imgUrl),
+                                    action: currentItem[actionKey] ? String(currentItem[actionKey]) : ""
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (alanDataList.length > 0) {
+                    document.getElementById("sliderWrapper").style.display = "block";
+                    alanDataList.forEach((slide, index) => {
+                        // إضافة الصورة
+                        let imgEl = document.createElement("img");
+                        imgEl.src = slide.url;
+                        imgEl.onclick = () => {
+                            if (!slide.action) return;
+                            if (slide.action.startsWith("http")) {
+                                window.open(slide.action, "_blank");
+                            } else {
+                                showDialog("الانتقال لصفحة: " + slide.action);
+                            }
+                        };
+                        pagerAlan.appendChild(imgEl);
+
+                        // إضافة النقطة الخاصة بالسلايدر المتمدد
+                        let dotEl = document.createElement("div");
+                        dotEl.className = `dot ${index === 0 ? 'active' : ''}`;
+                        dotEl.id = `dot-${index}`;
+                        dotsLayout.appendChild(dotEl);
+                    });
+
+                    // تفعيل الأنيميشن والتمرير التلقائي كل 5 ثوانٍ كالمستودع البرمجي المرفق بالملف
+                    let currentSlide = 0;
+                    setInterval(() => {
+                        if (alanDataList.length <= 1) return;
+                        currentSlide = (currentSlide + 1) % alanDataList.length;
+                        
+                        const slideWidth = pagerAlan.clientWidth;
+                        pagerAlan.scrollTo({ left: slideWidth * currentSlide, behavior: 'smooth' });
+                        
+                        // تحديث حالة النقاط النشطة والمتمددة
+                        document.querySelectorAll(".dot").forEach(d => d.classList.remove("active"));
+                        const activeDot = document.getElementById(`dot-${currentSlide}`);
+                        if(activeDot) activeDot.classList.add("active");
+                    }, 5000);
+
+                } else {
+                    document.getElementById("sliderWrapper").style.display = "none";
+                }
+            });
+        }
+
+        // جلب وبناء المنتجات والأقسام التلقائية مع فلترة الـ Category
         function listenToProducts() {
             database.ref("fbd").on("value", (snapshot) => {
                 const container = document.getElementById("productsContainer");
                 const loadingText = document.getElementById("loading");
+                const scroller = document.getElementById("categoriesScroller");
+                
                 container.innerHTML = "";
+                // الاحتفاظ بزر "الكل" الأساسي
+                scroller.innerHTML = '<div class="category-chip active" id="chip-all" onclick="filterByCategory(\'all\')">الكل</div>';
+                
                 if (snapshot.exists()) {
                     loadingText.style.display = "none";
                     allProducts = snapshot.val();
+                    
+                    let categoriesFound = new Set();
+
                     Object.keys(allProducts).forEach(key => {
                         const prod = allProducts[key];
-                        const pImage = getBypassedImageUrl(prod.img1);
-                        const html = `
-                            <div class="product-card" onclick="openProductDetails('${key}')">
-                                <img src="${pImage}" onerror="this.src='https://via.placeholder.com/150';">
-                                <div class="product-info">
-                                    <h3 class="product-title">${prod.name || 'منتج بدون اسم'}</h3>
-                                    <span class="product-price-main">${Number(prod.dna || 0).toLocaleString()} د.ع</span>
-                                </div>
-                            </div>`;
-                        container.innerHTML += html;
+                        if (prod.category && prod.category.trim() !== "") {
+                            categoriesFound.add(prod.category.trim());
+                        }
                     });
-                } else { loadingText.innerText = "لا توجد منتجات حالياً."; }
+
+                    // بناء أزرار الأقسام المتواجدة ديناميكياً
+                    categoriesFound.forEach(cat => {
+                        scroller.innerHTML += `<div class="category-chip" id="chip-${cat}" onclick="filterByCategory('${cat}')">${cat}</div>`;
+                    });
+
+                    renderProductsGrid();
+                } else { 
+                    loadingText.innerText = "لا توجد منتجات حالياً."; 
+                }
             });
+        }
+
+        // دالة طباعة شبكة المنتجات بالصفحة الرئيسية مع دعم الفلترة الكاملة وحذف أيقونة القلب
+        function renderProductsGrid() {
+            const container = document.getElementById("productsContainer");
+            container.innerHTML = "";
+            
+            let count = 0;
+            Object.keys(allProducts).forEach(key => {
+                const prod = allProducts[key];
+                
+                // فلترة المنتجات بحسب القسم المختار
+                if (activeCategory !== 'all' && prod.category !== activeCategory) {
+                    return; 
+                }
+
+                count++;
+                const pImage = getBypassedImageUrl(prod.img1);
+                const html = `
+                    <div class="product-card" onclick="openProductDetails('${key}')">
+                        <img src="${pImage}" onerror="this.src='https://via.placeholder.com/150';">
+                        <div class="product-info">
+                            <h3 class="product-title">${prod.name || 'منتج بدون اسم'}</h3>
+                            <span class="product-price-main">${Number(prod.dna || 0).toLocaleString()} د.ع</span>
+                        </div>
+                    </div>`;
+                container.innerHTML += html;
+            });
+
+            if(count === 0) {
+                container.innerHTML = `<p style="grid-column: span 2; text-align: center; color: #777; padding: 20px;">لا توجد منتجات في هذا القسم حالياً.</p>`;
+            }
+        }
+
+        // عند الضغط على قسم معين يتم تفعيل الفلتر فوراً
+        function filterByCategory(categoryName) {
+            activeCategory = categoryName;
+            document.querySelectorAll(".category-chip").forEach(el => el.classList.remove("active"));
+            
+            if(categoryName === 'all') {
+                document.getElementById("chip-all").classList.add("active");
+                document.getElementById("productsGridTitle").innerText = "كافة المنتجات";
+            } else {
+                document.getElementById(`chip-${categoryName}`).classList.add("active");
+                document.getElementById("productsGridTitle").innerText = "منتجات " + categoryName;
+            }
+            renderProductsGrid();
         }
 
         function openProductDetails(key) {
@@ -543,7 +778,6 @@
             document.getElementById("customerPriceInput").value = currentSelectedProduct.dna || 0;
             document.getElementById("detailOsf").innerText = currentSelectedProduct.osf || 'لا يوجد مواصفات';
 
-            // حساب الأرباح الحية بشكل فوري عند فتح الصفحة
             calculateLiveProfit();
 
             const slider = document.getElementById("sliderContainer");
@@ -557,7 +791,6 @@
             }
         }
 
-        // دالة مضافة لحساب صافي الربح بشكل حي عند كتابة السعر لتتوافق مع بطاقة الربح بالصورة
         function calculateLiveProfit() {
             let inputPrice = parseFloat(document.getElementById("customerPriceInput").value) || 0;
             let sarPrice = parseFloat(currentSelectedProduct.sar) || 0;
@@ -578,7 +811,6 @@
             calculateLiveProfit();
         }
 
-        // وظيفة إضافية لزر نسخ المواصفات المريح للتاجر
         function copySpecsText() {
             const textToCopy = document.getElementById("detailOsf").innerText;
             navigator.clipboard.writeText(textToCopy).then(() => {
@@ -789,7 +1021,7 @@
                 updateCartBadge();
                 
                 showDialog(`تم الطلب بنجاح! رقم الطلب: ${randomId}`);
-                navigateTo("mainPage");
+                handleBottomNav('mainPage', 'nav-main');
                 document.getElementById("btnFinalOrder").disabled = false;
             }).catch(error => {
                 hideLoading();
