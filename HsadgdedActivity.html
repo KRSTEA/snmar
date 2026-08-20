@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>انشئ حسابك الآن - سنمار</title>
-    <!-- استدعاء Firebase Web SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @font-face {
             font-family: 'font1';
@@ -33,7 +30,6 @@
             overflow-x: hidden;
         }
 
-        /* الهيدر العلوي */
         .header {
             width: 100%;
             padding: 30px 20px 15px 20px;
@@ -73,7 +69,6 @@
             margin: 0 auto;
         }
 
-        /* الحاوية البيضاء */
         .main-card {
             background-color: #FFFFFF;
             width: 100%;
@@ -154,7 +149,6 @@
             text-align: center;
         }
 
-        /* زر إنشاء الحساب */
         .footer-action {
             width: 100%;
             padding: 12px 22px 20px 22px;
@@ -174,11 +168,6 @@
             box-shadow: 0 4px 10px rgba(252, 87, 0, 0.3);
         }
 
-        .btn-submit:active {
-            opacity: 0.9;
-        }
-
-        /* نافذة جاري إنشاء الحساب (ProgressDialog) */
         .overlay {
             position: fixed;
             top: 0;
@@ -223,7 +212,6 @@
             font-size: 13px;
         }
 
-        /* توست التنبيهات البسيطة */
         .toast {
             position: fixed;
             bottom: 80px;
@@ -242,7 +230,6 @@
 </head>
 <body>
 
-    <!-- الهيدر -->
     <div class="header">
         <div class="logo-box">
             <svg viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/></svg>
@@ -251,7 +238,6 @@
         <p>اصبح تاجر بدون تخزين أو رأس مال<br>يمكنك إدارة مبيعاتك ومتابعة طلباتك وتحقيق أرباحك</p>
     </div>
 
-    <!-- الكارت الأبيض للنموذج -->
     <div class="main-card">
         <div class="form-group">
             <label class="form-label">اسم المستخدم</label>
@@ -288,12 +274,10 @@
         <div class="link-login" id="lin6" onclick="goToLogin()">لدي حساب مستخدم</div>
     </div>
 
-    <!-- زر انشاء الحساب -->
     <div class="footer-action">
         <button class="btn-submit" onclick="registerProcess()">انشاء الحساب</button>
     </div>
 
-    <!-- نافذة جاري إنشاء الحساب -->
     <div class="overlay" id="loadingDialog">
         <div class="dialog-card" style="width: 80%;">
             <div class="spinner"></div>
@@ -301,25 +285,15 @@
         </div>
     </div>
 
-    <!-- رسالة Toast -->
     <div class="toast" id="toastMsg"></div>
 
     <script>
-        // إعدادات الفايربيس وتحديد نفس الرابط
-        const firebaseConfig = {
-            databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com/"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const fdb_users = firebase.database().ref("users");
+        const DB_URL = "https://alihsn-3c914-default-rtdb.firebaseio.com";
 
-        // منع اللغة العربية في كلمة السر (Input Filter)
         document.getElementById('edittext4').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^a-zA-Z0-9._@#$%^&+=!*]/g, '');
         });
 
-        // رسائل Toast بديل لـ SketchwareUtil.showMessage
         function showMessage(msg) {
             const toast = document.getElementById('toastMsg');
             toast.innerText = msg;
@@ -329,12 +303,10 @@
             }, 2500);
         }
 
-        // العودة لصفحة الدخول
         function goToLogin() {
             window.location.href = "index.html";
         }
 
-        // عملية إنشاء الحساب المعتمدة بنفس حقول وشروط الفايربيس
         function registerProcess() {
             const userName = document.getElementById('edittext1').value.trim();
             const shopName = document.getElementById('edittext2').value.trim();
@@ -358,56 +330,58 @@
 
             document.getElementById('loadingDialog').style.display = 'flex';
 
-            fdb_users.child(phone).once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    document.getElementById('loadingDialog').style.display = 'none';
-                    showMessage("هذا الرقم مسجل مسبقاً!");
-                } else {
-                    const finalToken = "web_token";
+            fetch(`${DB_URL}/fdb_users/${phone}.json`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById('loadingDialog').style.display = 'none';
+                        showMessage("هذا الرقم مسجل مسبقاً!");
+                    } else {
+                        let finalUserId = "";
+                        const characters = "0123456789";
+                        for (let i = 0; i < 6; i++) {
+                            finalUserId += characters.charAt(Math.floor(Math.random() * characters.length));
+                        }
 
-                    // توليد user_id عشوائي من 6 أرقام
-                    const characters = "0123456789";
-                    let finalUserId = "";
-                    for (let i = 0; i < 6; i++) {
-                        finalUserId += characters.charAt(Math.floor(Math.random() * characters.length));
-                    }
+                        const now = new Date();
+                        const dateNow = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
 
-                    // تاريخ إنشاء الحساب (yyyy/M/d)
-                    const now = new Date();
-                    const dateNow = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
+                        const userMap = {
+                            name: userName,
+                            shop_name: shopName,
+                            phone: phone,
+                            password: password,
+                            user_id: finalUserId,
+                            fcmToken: "none",
+                            alihsn: "kf69",
+                            nhsa: dateNow
+                        };
 
-                    const userMap = {
-                        name: userName,
-                        shop_name: shopName,
-                        phone: phone,
-                        password: password,
-                        user_id: finalUserId,
-                        fcmToken: finalToken,
-                        nhsa: dateNow
-                    };
-
-                    fdb_users.child(phone).set(userMap).then(() => {
-                        setTimeout(() => {
+                        fetch(`${DB_URL}/fdb_users/${phone}.json`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(userMap)
+                        })
+                        .then(res => res.json())
+                        .then(() => {
                             document.getElementById('loadingDialog').style.display = 'none';
-
                             localStorage.setItem("user_phone", phone);
                             localStorage.setItem("shop_name", shopName);
                             localStorage.setItem("user_name", userName);
 
                             showMessage("تم التسجيل بنجاح ✅");
-
-                            setTimeout(() => {
-                                window.location.href = "AsasehActivity.html";
-                            }, 500);
-                        }, 1500);
-                    }).catch(() => {
-                        document.getElementById('loadingDialog').style.display = 'none';
-                        showMessage("خطأ في الحفظ ❌");
-                    });
-                }
-            }).catch(() => {
-                document.getElementById('loadingDialog').style.display = 'none';
-            });
+                            setTimeout(() => { window.location.href = "AsasehActivity.html"; }, 1000);
+                        })
+                        .catch(() => {
+                            document.getElementById('loadingDialog').style.display = 'none';
+                            showMessage("خطأ في الحفظ ❌");
+                        });
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('loadingDialog').style.display = 'none';
+                    showMessage("خطأ في الاتصال!");
+                });
         }
     </script>
 </body>
