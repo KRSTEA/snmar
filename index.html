@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سجّل دخولك إلى سنمار</title>
-    <!-- استدعاء Firebase Web SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         @font-face {
             font-family: 'font1';
@@ -33,7 +30,6 @@
             overflow-x: hidden;
         }
 
-        /* الجزء العلوي الهيدر */
         .header {
             width: 100%;
             padding: 40px 20px 20px 20px;
@@ -73,7 +69,6 @@
             margin: 0 auto;
         }
 
-        /* الحاوية البيضاء الرئيسية */
         .main-card {
             background-color: #FFFFFF;
             width: 100%;
@@ -159,7 +154,6 @@
             cursor: pointer;
         }
 
-        /* زر تسجيل الدخول */
         .footer-action {
             width: 100%;
             padding: 15px 25px 25px 25px;
@@ -179,11 +173,6 @@
             box-shadow: 0 4px 10px rgba(252, 87, 0, 0.3);
         }
 
-        .btn-submit:active {
-            opacity: 0.9;
-        }
-
-        /* النافذة المنبثقة (ProgressDialog & ErrorDialog) */
         .overlay {
             position: fixed;
             top: 0;
@@ -208,7 +197,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* Spinner التحميل */
         .spinner {
             width: 32px;
             height: 32px;
@@ -266,7 +254,6 @@
 </head>
 <body>
 
-    <!-- الهيدر -->
     <div class="header">
         <div class="logo-box">
             <svg viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/></svg>
@@ -275,7 +262,6 @@
         <p>للوصول إلى لوحة التحكم الخاصة بك وإدارة عمليات البيع والتسوق بكل سلاسة.</p>
     </div>
 
-    <!-- الكارت الأبيض للنموذج -->
     <div class="main-card">
         <div class="form-group">
             <label class="form-label">رقم الهاتف</label>
@@ -299,12 +285,10 @@
         </div>
     </div>
 
-    <!-- زر تسجيل الدخول -->
     <div class="footer-action">
         <button class="btn-submit" onclick="loginProcess()">تسجيل الدخول</button>
     </div>
 
-    <!-- نافذة جاري التحقق -->
     <div class="overlay" id="loadingDialog">
         <div class="dialog-card" style="width: 82%;">
             <div class="spinner"></div>
@@ -312,7 +296,6 @@
         </div>
     </div>
 
-    <!-- نافذة رسائل الخطأ -->
     <div class="overlay" id="errorDialog">
         <div class="dialog-card" style="width: 70%;">
             <div class="err-text" id="errorMsg"></div>
@@ -324,16 +307,8 @@
     </div>
 
     <script>
-        // إعدادات Firebase 
-        const firebaseConfig = {
-            databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com/" // ضع رابط داتابيز الفايربيس هنا
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const fdb_users = firebase.database().ref("users");
+        const DB_URL = "https://alihsn-3c914-default-rtdb.firebaseio.com";
 
-        // الفحص التلقائي للدخول المسبق (SharedPreferences)
         window.onload = function() {
             const savedPhone = localStorage.getItem("user_phone") || "";
             if (savedPhone !== "") {
@@ -341,17 +316,14 @@
             }
         };
 
-        // منع اللغة العربية في كلمة السر (Input Filter)
         document.getElementById('edittext2').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^a-zA-Z0-9._@#$%^&+=!*]/g, '');
         });
 
-        // زر نسيت كلمة السر
         function openInstagram() {
             window.location.href = "https://www.instagram.com/_u/1.snmar";
         }
 
-        // زر إنشاء حساب جديد
         function goToRegister() {
             window.location.href = "HsadgdedActivity.html";
         }
@@ -366,7 +338,6 @@
             document.getElementById('errorDialog').style.display = 'flex';
         }
 
-        // كود تسجيل الدخول بالكامل مطبق لعملية الفايربيس والحفظ
         function loginProcess() {
             const phone = document.getElementById('edittext1').value.trim();
             const password = document.getElementById('edittext2').value.trim();
@@ -378,42 +349,47 @@
 
             document.getElementById('loadingDialog').style.display = 'flex';
 
-            fdb_users.child(phone).once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const correctPassword = data.password ? String(data.password) : "";
+            fetch(`${DB_URL}/fdb_users/${phone}.json`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        const correctPassword = data.password ? String(data.password) : "";
 
-                    if (password === correctPassword) {
-                        localStorage.setItem("user_phone", phone);
+                        if (password === correctPassword) {
+                            localStorage.setItem("user_phone", phone);
 
-                        if (data.name) {
-                            localStorage.setItem("user_name", String(data.name));
-                        }
-                        if (data.shop_name) {
-                            localStorage.setItem("shop_name", String(data.shop_name));
-                        }
+                            if (data.name) localStorage.setItem("user_name", String(data.name));
+                            if (data.shop_name) localStorage.setItem("shop_name", String(data.shop_name));
 
-                        const updateMap = {
-                            fcmToken: "web_token",
-                            alihsn: "kf69"
-                        };
+                            const updateMap = {
+                                fcmToken: "none",
+                                alihsn: "kf69"
+                            };
 
-                        fdb_users.child(phone).update(updateMap).then(() => {
-                            setTimeout(() => {
+                            fetch(`${DB_URL}/fdb_users/${phone}.json`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(updateMap)
+                            }).then(() => {
+                                setTimeout(() => {
+                                    document.getElementById('loadingDialog').style.display = 'none';
+                                    window.location.href = "AsasehActivity.html";
+                                }, 500);
+                            }).catch(() => {
                                 document.getElementById('loadingDialog').style.display = 'none';
                                 window.location.href = "AsasehActivity.html";
-                            }, 500);
-                        });
+                            });
 
+                        } else {
+                            showError("كلمة السر غير صحيحة!");
+                        }
                     } else {
-                        showError("كلمة السر غير صحيحة!");
+                        showError("هذا الرقم غير مسجل، يرجى إنشاء حساب جديد");
                     }
-                } else {
-                    showError("هذا الرقم غير مسجل، يرجى إنشاء حساب جديد");
-                }
-            }).catch((error) => {
-                showError("خطأ في الاتصال!");
-            });
+                })
+                .catch(() => {
+                    showError("خطأ في الاتصال بالقاعدة!");
+                });
         }
     </script>
 </body>
