@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>انشئ حسابك الآن - سنمار</title>
+    <!-- استدعاء Firebase Web SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        @font-face {
+            font-family: 'font1';
+            src: url('fonts/font1.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'font1', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #FC5700;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* الهيدر العلوي */
+        .header {
+            width: 100%;
+            padding: 30px 20px 15px 20px;
+            text-align: center;
+            color: #FFFFFF;
+        }
+
+        .logo-box {
+            width: 55px;
+            height: 55px;
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            margin: 0 auto 12px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo-box svg {
+            width: 30px;
+            height: 30px;
+            fill: #FC5700;
+        }
+
+        .header h1 {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 11px;
+            line-height: 1.5;
+            opacity: 0.95;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        /* الحاوية البيضاء */
+        .main-card {
+            background-color: #FFFFFF;
+            width: 100%;
+            flex-grow: 1;
+            border-top-left-radius: 35px;
+            border-top-right-radius: 35px;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #2D3142;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 0 12px;
+            height: 45px;
+            background-color: #FFFFFF;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+            transition: border-color 0.2s;
+        }
+
+        .input-box:focus-within {
+            border-color: #FC5700;
+        }
+
+        .input-box svg {
+            width: 18px;
+            height: 18px;
+            fill: #FC5700;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .input-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            height: 100%;
+            font-size: 12px;
+            color: #333333;
+            background: transparent;
+        }
+
+        .input-box input.rtl-text {
+            direction: rtl;
+            text-align: right;
+        }
+
+        .input-box input.ltr-text {
+            direction: ltr;
+            text-align: right;
+        }
+
+        .link-login {
+            color: #2D3142;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* زر إنشاء الحساب */
+        .footer-action {
+            width: 100%;
+            padding: 12px 22px 20px 22px;
+            background-color: #FFFFFF;
+        }
+
+        .btn-submit {
+            width: 100%;
+            height: 48px;
+            background-color: #FC5700;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(252, 87, 0, 0.3);
+        }
+
+        .btn-submit:active {
+            opacity: 0.9;
+        }
+
+        /* نافذة جاري إنشاء الحساب (ProgressDialog) */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .dialog-card {
+            background: #FFFFFF;
+            border-radius: 25px;
+            padding: 22px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #F3F3F3;
+            border-top: 3px solid #FC5700;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .dialog-text {
+            color: #424242;
+            font-size: 13px;
+        }
+
+        /* توست التنبيهات البسيطة */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: none;
+            z-index: 2000;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الهيدر -->
+    <div class="header">
+        <div class="logo-box">
+            <svg viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/></svg>
+        </div>
+        <h1>انشئ حسابك الآن</h1>
+        <p>اصبح تاجر بدون تخزين أو رأس مال<br>يمكنك إدارة مبيعاتك ومتابعة طلباتك وتحقيق أرباحك</p>
+    </div>
+
+    <!-- الكارت الأبيض للنموذج -->
+    <div class="main-card">
+        <div class="form-group">
+            <label class="form-label">اسم المستخدم</label>
+            <div class="input-box" id="lin1">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <input type="text" id="edittext1" class="rtl-text" placeholder="اكتب اسمك">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">اسم المتجر الخاص بك</label>
+            <div class="input-box" id="lin2">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+                <input type="text" id="edittext2" class="rtl-text" placeholder="اكتب اسم المتجر">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">رقم الهاتف</label>
+            <div class="input-box" id="lin3">
+                <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                <input type="tel" id="edittext3" class="ltr-text" placeholder="078XXXXXXXX">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">كلمة السر</label>
+            <div class="input-box" id="lin4">
+                <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v2h2v-2h2v-2h-8.35zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                <input type="password" id="edittext4" class="ltr-text" placeholder="اكتب كلمة السر">
+            </div>
+        </div>
+
+        <div class="link-login" id="lin6" onclick="goToLogin()">لدي حساب مستخدم</div>
+    </div>
+
+    <!-- زر انشاء الحساب -->
+    <div class="footer-action">
+        <button class="btn-submit" onclick="registerProcess()">انشاء الحساب</button>
+    </div>
+
+    <!-- نافذة جاري إنشاء الحساب -->
+    <div class="overlay" id="loadingDialog">
+        <div class="dialog-card" style="width: 80%;">
+            <div class="spinner"></div>
+            <div class="dialog-text">جاري إنشاء الحساب...</div>
+        </div>
+    </div>
+
+    <!-- رسالة Toast -->
+    <div class="toast" id="toastMsg"></div>
+
+    <script>
+        // إعدادات الفايربيس وتحديد نفس الرابط
+        const firebaseConfig = {
+            databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com/"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const fdb_users = firebase.database().ref("users");
+
+        // منع اللغة العربية في كلمة السر (Input Filter)
+        document.getElementById('edittext4').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z0-9._@#$%^&+=!*]/g, '');
+        });
+
+        // رسائل Toast بديل لـ SketchwareUtil.showMessage
+        function showMessage(msg) {
+            const toast = document.getElementById('toastMsg');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2500);
+        }
+
+        // العودة لصفحة الدخول
+        function goToLogin() {
+            window.location.href = "index.html";
+        }
+
+        // عملية إنشاء الحساب المعتمدة بنفس حقول وشروط الفايربيس
+        function registerProcess() {
+            const userName = document.getElementById('edittext1').value.trim();
+            const shopName = document.getElementById('edittext2').value.trim();
+            const phone = document.getElementById('edittext3').value.trim();
+            const password = document.getElementById('edittext4').value.trim();
+
+            if (!userName || !shopName || !phone || !password) {
+                showMessage("يرجى ملء جميع الحقول");
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage("كلمة السر يجب أن تكون 6 رموز فأكثر");
+                return;
+            }
+
+            if (phone.length !== 11 || !(phone.startsWith("077") || phone.startsWith("078") || phone.startsWith("075"))) {
+                showMessage("عذراً، يجب أن يتكون الرقم من 11 مرتبة ويبدأ بـ 077 أو 078 أو 075");
+                return;
+            }
+
+            document.getElementById('loadingDialog').style.display = 'flex';
+
+            fdb_users.child(phone).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    document.getElementById('loadingDialog').style.display = 'none';
+                    showMessage("هذا الرقم مسجل مسبقاً!");
+                } else {
+                    const finalToken = "web_token";
+
+                    // توليد user_id عشوائي من 6 أرقام
+                    const characters = "0123456789";
+                    let finalUserId = "";
+                    for (let i = 0; i < 6; i++) {
+                        finalUserId += characters.charAt(Math.floor(Math.random() * characters.length));
+                    }
+
+                    // تاريخ إنشاء الحساب (yyyy/M/d)
+                    const now = new Date();
+                    const dateNow = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
+
+                    const userMap = {
+                        name: userName,
+                        shop_name: shopName,
+                        phone: phone,
+                        password: password,
+                        user_id: finalUserId,
+                        fcmToken: finalToken,
+                        nhsa: dateNow
+                    };
+
+                    fdb_users.child(phone).set(userMap).then(() => {
+                        setTimeout(() => {
+                            document.getElementById('loadingDialog').style.display = 'none';
+
+                            localStorage.setItem("user_phone", phone);
+                            localStorage.setItem("shop_name", shopName);
+                            localStorage.setItem("user_name", userName);
+
+                            showMessage("تم التسجيل بنجاح ✅");
+
+                            setTimeout(() => {
+                                window.location.href = "AsasehActivity.html";
+                            }, 500);
+                        }, 1500);
+                    }).catch(() => {
+                        document.getElementById('loadingDialog').style.display = 'none';
+                        showMessage("خطأ في الحفظ ❌");
+                    });
+                }
+            }).catch(() => {
+                document.getElementById('loadingDialog').style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
