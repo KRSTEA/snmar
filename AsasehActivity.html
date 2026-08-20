@@ -7,7 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -75,7 +75,6 @@
             color: var(--primary);
         }
 
-        /* شريط البحث المباشر */
         .search-container {
             padding: 10px 16px;
             background: #FFF;
@@ -99,7 +98,6 @@
             color: var(--text-main);
         }
 
-        /* السلايدر */
         .banner-section {
             padding: 12px 16px;
         }
@@ -124,7 +122,6 @@
             border-radius: 10px !important;
         }
 
-        /* الأقسام */
         .section-title {
             font-size: 15px;
             font-weight: 700;
@@ -156,7 +153,6 @@
             background: var(--primary-light);
         }
 
-        /* شبكة المنتجات */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -207,6 +203,7 @@
             object-fit: contain;
             border-radius: 12px;
             margin-bottom: 8px;
+            cursor: pointer;
         }
 
         .product-title {
@@ -246,7 +243,6 @@
             cursor: pointer;
         }
 
-        /* نافذة إضافة السعر */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -364,7 +360,6 @@
             cursor: pointer;
         }
 
-        /* الشريط السفلي */
         .bottom-nav {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -424,11 +419,11 @@
         </button>
     </header>
 
-    <!-- حقل البحث المباشر بنفس الصفحة -->
+    <!-- البحث المباشر -->
     <div class="search-container">
         <div class="search-box">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8D99AE" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="search-input" placeholder="ابحث باسم المنتج أو أحرف منه..." oninput="filterProducts()">
+            <input type="text" id="search-input" placeholder="ابحث باسم المنتج..." oninput="filterProducts()">
         </div>
     </div>
 
@@ -458,7 +453,9 @@
 
     <!-- قائمة المنتجات -->
     <div class="section-title" id="products-heading">كافة المنتجات</div>
-    <div class="products-grid" id="products-container"></div>
+    <div class="products-grid" id="products-container">
+        <p style="grid-column: 1/-1; text-align:center; color:#8D99AE; padding:20px;">جاري تحميل المنتجات...</p>
+    </div>
 
     <!-- نافذة تحديد السعر -->
     <div class="modal-overlay" id="product-modal">
@@ -511,8 +508,7 @@
 
     <!-- الربط والمنطق البرمجي -->
     <script>
-        const userPhone = localStorage.getItem("user_phone");
-        if (!userPhone) window.location.href = "LoginActivity.html";
+        const userPhone = localStorage.getItem("user_phone") || "guest";
 
         const firebaseConfig = {
             databaseURL: "https://سنمار-default-rtdb.firebaseio.com"
@@ -530,6 +526,7 @@
         // 1. جلب السلايدر
         db.ref("fdb_alan/slider_data").once("value", snapshot => {
             const wrapper = document.getElementById("slider-wrapper");
+            wrapper.innerHTML = "";
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 for (let i = 1; i <= 10; i++) {
@@ -549,22 +546,28 @@
             }
         });
 
-        // 2. جلب المنتجات وحفظها في مصفوفة allProducts
+        // 2. جلب المنتجات مع معالجة حقل المخزون بمرونة
         db.ref("fbd").on("value", snapshot => {
             allProducts = [];
             if (snapshot.exists()) {
                 snapshot.forEach(child => {
                     try {
                         const item = child.val();
-                        if (item) {
-                            item.id = item.id || child.key;
-                            let rawStock = item.stock ? item.stock.toString() : "0";
-                            const stock = parseInt(rawStock.replace(/[^0-9]/g, '')) || 0;
-                            if (stock > 0) {
-                                allProducts.push(item);
+                        if (item && typeof item === 'object') {
+                            item.id = child.key;
+
+                            // تحويل الـ stock لرقم بشكل آمن مطيع لمنطق Sketchware
+                            let rawStock = item.stock ? String(item.stock) : "0";
+                            let cleanStock = parseInt(rawStock.replace(/[^0-9]/g, '')) || 0;
+
+                            if (cleanStock > 0) {
+                                item.parsedStock = cleanStock;
+                                allProducts.unshift(item); // إضافة الأحدث بالأعلى
                             }
                         }
-                    } catch (e) { console.error(e); }
+                    } catch (e) {
+                        console.error("خطأ قراءة المنتج:", e);
+                    }
                 });
             }
             renderProducts(allProducts);
@@ -575,8 +578,8 @@
             const container = document.getElementById("products-container");
             container.innerHTML = "";
             
-            if (list.length === 0) {
-                container.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#8D99AE; padding:20px;'>لا توجد منتجات مطابقة</p>";
+            if (!list || list.length === 0) {
+                container.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#8D99AE; padding:20px;'>لا توجد منتجات متاحة حالياً</p>";
                 return;
             }
 
@@ -584,26 +587,29 @@
 
             list.forEach(item => {
                 const isFav = favList.some(f => String(f.id) === String(item.id));
-                let rawSar = item.sar ? item.sar.toString() : "0";
+                let rawSar = item.sar ? String(item.sar) : "0";
                 const sarNum = parseFloat(rawSar.replace(/[^0-9.]/g, '')) || 0;
 
                 const card = document.createElement("div");
                 card.className = "product-card";
+                
+                // تحويل بيانات المنتج إلى JSON آمن للاستخدام داخل أزرار الـ HTML
+                const itemData = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
                 card.innerHTML = `
-                    <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(event, ${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                    <div class="fav-btn ${isFav ? 'active' : ''}" onclick='toggleFav(event, ${itemData})'>
                         <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     </div>
-                    <img src="${item.img1 || ''}" class="product-img" onclick="openDetails('${item.id}')" onerror="this.src='https://via.placeholder.com/150'">
-                    <div class="product-title">${item.name || 'منتج'}</div>
+                    <img src="${item.img1 || 'https://via.placeholder.com/150'}" class="product-img" onclick="openDetails('${item.id}')" onerror="this.src='https://via.placeholder.com/150'">
+                    <div class="product-title" onclick="openDetails('${item.id}')">${item.name || 'منتج'}</div>
                     <div class="product-info">سعر الجملة : <span>${formatNum(sarNum)} د.ع</span></div>
-                    <div class="product-info">القطع المتوفرة : <span>${item.stock}</span></div>
-                    <button class="add-cart-btn" onclick='openModal(${JSON.stringify(item).replace(/"/g, '&quot;')})'>اضافة الى السلة</button>
+                    <div class="product-info">القطع المتوفرة : <span>${item.parsedStock || item.stock || 0}</span></div>
+                    <button class="add-cart-btn" onclick='openModal(${itemData})'>اضافة الى السلة</button>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // تصفية المنتجات مباشرة عند الكتابة
         function filterProducts() {
             const query = document.getElementById("search-input").value.trim().toLowerCase();
             if (!query) {
@@ -617,7 +623,6 @@
             renderProducts(filtered);
         }
 
-        // الانتقال لصفحة الفئة الموحدة عبر الفايربيس/المعلمات (تفتح CategoryActivity.html)
         function openCategory(catName) {
             window.location.href = "CategoryActivity.html?cat_name=" + encodeURIComponent(catName);
         }
@@ -639,16 +644,15 @@
             renderProducts(allProducts);
         }
 
-        // النافذة المنبثقة
         function openModal(item) {
             selectedProduct = item;
-            const sar = parseFloat((item.sar || "0").toString().replace(/[^0-9.]/g, '')) || 0;
-            const dna = parseFloat((item.dna || "0").toString().replace(/[^0-9.]/g, '')) || 0;
+            const sar = parseFloat(String(item.sar || "0").replace(/[^0-9.]/g, '')) || 0;
+            const dna = parseFloat(String(item.dna || "0").replace(/[^0-9.]/g, '')) || 0;
             
-            document.getElementById("modal-name").innerText = item.name;
+            document.getElementById("modal-name").innerText = item.name || "-";
             document.getElementById("modal-sar").innerText = formatNum(sar) + " د.ع";
             document.getElementById("modal-dna").innerText = formatNum(dna) + " د.ع";
-            document.getElementById("modal-stock").innerText = item.stock + " قطعة";
+            document.getElementById("modal-stock").innerText = (item.parsedStock || item.stock || 0) + " قطعة";
             document.getElementById("user-price-input").value = "";
             document.getElementById("modal-profit").innerText = "الصافي الربح لكل قطعة : " + formatNum(dna - sar) + " د.ع";
 
@@ -658,8 +662,8 @@
         document.getElementById("user-price-input").addEventListener("input", function(e) {
             if (!selectedProduct) return;
             const userP = parseFloat(e.target.value) || 0;
-            const sarP = parseFloat((selectedProduct.sar || "0").toString().replace(/[^0-9.]/g, '')) || 0;
-            const minP = parseFloat((selectedProduct.dna || "0").toString().replace(/[^0-9.]/g, '')) || 0;
+            const sarP = parseFloat(String(selectedProduct.sar || "0").replace(/[^0-9.]/g, '')) || 0;
+            const minP = parseFloat(String(selectedProduct.dna || "0").replace(/[^0-9.]/g, '')) || 0;
 
             if (userP < minP) {
                 document.getElementById("modal-profit").innerText = "الصافي الربح لكل قطعة : 0 د.ع";
@@ -673,11 +677,13 @@
         }
 
         function submitToCart() {
+            if (!selectedProduct) return;
+
             const userPriceStr = document.getElementById("user-price-input").value;
             if (!userPriceStr) { alert("يرجى تحديد السعر أولاً"); return; }
 
             const userPrice = parseFloat(userPriceStr);
-            const minPrice = parseFloat((selectedProduct.dna || "0").toString().replace(/[^0-9.]/g, '')) || 0;
+            const minPrice = parseFloat(String(selectedProduct.dna || "0").replace(/[^0-9.]/g, '')) || 0;
 
             if (userPrice < minPrice) {
                 alert("السعر أقل من الحد الأدنى!");
@@ -701,7 +707,7 @@
                     img1: selectedProduct.img1,
                     sar_price: selectedProduct.sar,
                     count: "1",
-                    stock: selectedProduct.stock
+                    stock: selectedProduct.parsedStock || selectedProduct.stock
                 });
                 localStorage.setItem(cartKey, JSON.stringify(cartList));
                 alert("تمت الإضافة للسلة بنجاح");
