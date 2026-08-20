@@ -7,7 +7,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDKs (v8) -->
+    <!-- Firebase SDKs (v8.10.1) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -146,11 +146,6 @@
             color: var(--primary);
             cursor: pointer;
             transition: all 0.2s;
-        }
-
-        .cat-chip:active {
-            transform: scale(0.96);
-            background: var(--primary-light);
         }
 
         .products-grid {
@@ -506,14 +501,19 @@
         </a>
     </nav>
 
-    <!-- الربط والمنطق البرمجي -->
+    <!-- المنطق البرمجي -->
     <script>
         const userPhone = localStorage.getItem("user_phone") || "guest";
 
+        // إعدادات الفايربيس مع رابطك الخاص المباشر
         const firebaseConfig = {
-            databaseURL: "https://سنمار-default-rtdb.firebaseio.com"
+            databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
         const db = firebase.database();
 
         let allProducts = [];
@@ -523,12 +523,13 @@
             return new Intl.NumberFormat('en-US').format(num);
         }
 
-        // 1. جلب السلايدر
-        db.ref("fdb_alan/slider_data").once("value", snapshot => {
+        // 1. جلب السلايدر من fdb_alan/slider_data
+        db.ref("fdb_alan/slider_data").once("value").then(snapshot => {
             const wrapper = document.getElementById("slider-wrapper");
             wrapper.innerHTML = "";
             if (snapshot.exists()) {
                 const data = snapshot.val();
+                let count = 0;
                 for (let i = 1; i <= 10; i++) {
                     const url = data["alan" + i];
                     if (url && url !== "" && !url.includes("Error")) {
@@ -536,17 +537,20 @@
                         slide.className = "swiper-slide";
                         slide.innerHTML = `<img src="${url}">`;
                         wrapper.appendChild(slide);
+                        count++;
                     }
                 }
-                new Swiper(".mySwiper", {
-                    autoplay: { delay: 4000, disableOnInteraction: false },
-                    pagination: { el: ".swiper-pagination", clickable: true },
-                    loop: true
-                });
+                if(count > 0) {
+                    new Swiper(".mySwiper", {
+                        autoplay: { delay: 4000, disableOnInteraction: false },
+                        pagination: { el: ".swiper-pagination", clickable: true },
+                        loop: true
+                    });
+                }
             }
-        });
+        }).catch(err => console.error("Slider error:", err));
 
-        // 2. جلب المنتجات مع معالجة حقل المخزون بمرونة
+        // 2. جلب المنتجات من المسار fbd
         db.ref("fbd").on("value", snapshot => {
             allProducts = [];
             if (snapshot.exists()) {
@@ -556,13 +560,12 @@
                         if (item && typeof item === 'object') {
                             item.id = child.key;
 
-                            // تحويل الـ stock لرقم بشكل آمن مطيع لمنطق Sketchware
-                            let rawStock = item.stock ? String(item.stock) : "0";
+                            let rawStock = item.stock !== undefined ? String(item.stock) : "0";
                             let cleanStock = parseInt(rawStock.replace(/[^0-9]/g, '')) || 0;
 
                             if (cleanStock > 0) {
                                 item.parsedStock = cleanStock;
-                                allProducts.unshift(item); // إضافة الأحدث بالأعلى
+                                allProducts.unshift(item);
                             }
                         }
                     } catch (e) {
@@ -571,9 +574,11 @@
                 });
             }
             renderProducts(allProducts);
+        }, error => {
+            console.error("Firebase read error:", error);
         });
 
-        // عرض المنتجات
+        // عرض المنتجات في الشبكة
         function renderProducts(list) {
             const container = document.getElementById("products-container");
             container.innerHTML = "";
@@ -593,7 +598,6 @@
                 const card = document.createElement("div");
                 card.className = "product-card";
                 
-                // تحويل بيانات المنتج إلى JSON آمن للاستخدام داخل أزرار الـ HTML
                 const itemData = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
 
                 card.innerHTML = `
@@ -610,6 +614,7 @@
             });
         }
 
+        // تصفية المنتجات في البحث
         function filterProducts() {
             const query = document.getElementById("search-input").value.trim().toLowerCase();
             if (!query) {
