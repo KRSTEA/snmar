@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سنمار - تفاصيل المنتج</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- Swiper JS للسلايدر -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #FC5700;
+            --primary-light: #EEF2FF;
+            --bg-gray: #F8F9FA;
+            --text-main: #2B2D42;
+            --text-muted: #8D99AE;
+            --border-color: #E9ECEF;
+            --purple-btn: #2A24A6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            padding-bottom: 90px;
+        }
+
+        /* الهيدر العلوي */
+        .app-header {
+            background-color: #FFFFFF;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-logo {
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--primary);
+        }
+
+        /* حاوية التمرير الرئيسية */
+        .content-container {
+            padding: 12px 16px;
+        }
+
+        /* سلايدر صور المنتج */
+        .product-swiper {
+            width: 100%;
+            height: 280px;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: #EFEFEF;
+            position: relative;
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
+        }
+
+        .swiper-pagination-bullet {
+            width: 8px;
+            height: 8px;
+            background: #CCC;
+            opacity: 1;
+        }
+
+        .swiper-pagination-bullet-active {
+            background: var(--primary) !important;
+            width: 18px;
+            border-radius: 10px;
+        }
+
+        /* عنوان المنتج */
+        .product-title-text {
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            margin: 16px 0 12px;
+            color: #1A1A1A;
+        }
+
+        /* كروت الأسعار */
+        .price-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .price-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #F0F0F0;
+        }
+
+        .price-card label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-main);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .price-card .val {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .price-card.sar .val { color: #2A24A6; }
+        .price-card.dna .val { color: #C0392B; }
+
+        /* شريط صافي الربح */
+        .profit-banner {
+            background: #EEF2FF;
+            color: #2A24A6;
+            text-align: center;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        /* كارت تحديد سعر البيع */
+        .user-price-card {
+            background: #FFFFFF;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #F0F0F0;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .user-price-card label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .input-box {
+            width: 100%;
+            background: #F8F9FA;
+            border: 1px solid #E2E8F0;
+            border-radius: 25px;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            outline: none;
+            margin-bottom: 8px;
+        }
+
+        .input-note {
+            font-size: 11px;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        /* قسم المواصفات */
+        .specs-card {
+            background: #FFFFFF;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #F0F0F0;
+            margin-bottom: 20px;
+        }
+
+        .specs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .specs-title {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .copy-btn {
+            background: #EEF2FF;
+            color: #2A24A6;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .specs-content {
+            font-size: 13px;
+            color: #4A5568;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        /* الشريط السفلي للأزرار الثابتة */
+        .bottom-actions-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #FFFFFF;
+            padding: 12px 16px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+            z-index: 1000;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .btn-buy {
+            flex: 1.2;
+            background: var(--primary);
+            color: #FFF;
+            border: none;
+            padding: 12px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-download {
+            flex: 0.8;
+            background: var(--purple-btn);
+            color: #FFF;
+            border: none;
+            padding: 12px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* المودالات والأنوافذ التنبيهية الاحترافية لسنمار */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+
+        .custom-dialog-card {
+            background: #FFF;
+            width: 80%;
+            max-width: 320px;
+            border-radius: 30px;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .dialog-msg {
+            font-size: 13px;
+            color: #424242;
+            margin-bottom: 15px;
+            white-space: pre-line;
+            line-height: 1.5;
+        }
+
+        .dialog-btn-ok {
+            width: 100%;
+            height: 38px;
+            background: var(--primary);
+            color: #FFF;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* نافذة خيارات التحميل */
+        .download-opt-btn {
+            width: 100%;
+            height: 42px;
+            background: #F9F9F9;
+            border: none;
+            border-radius: 20px;
+            color: #757575;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        .download-opt-btn.selected {
+            background: #FBE9E7;
+            color: var(--primary);
+        }
+
+        .progress-spinner {
+            width: 35px;
+            height: 35px;
+            border: 3px solid #F3F3F3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 15px auto 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الهيدر العلوي -->
+    <header class="app-header">
+        <button class="icon-btn" onclick="window.history.back()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FC5700" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="app-logo">سنمار</div>
+        <button class="icon-btn" id="fav-btn-action" onclick="toggleFavorite()">
+            <svg id="fav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B2D42" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
+    </header>
+
+    <div class="content-container">
+        <!-- معرض الصور -->
+        <div class="swiper product-swiper">
+            <div class="swiper-wrapper" id="swiper-images-wrapper"></div>
+            <div class="swiper-pagination"></div>
+        </div>
+
+        <!-- اسم المنتج -->
+        <div class="product-title-text" id="txt-product-name">جاري التحميل...</div>
+
+        <!-- الأسعار -->
+        <div class="price-cards-grid">
+            <div class="price-card sar">
+                <label>سعر الجملة</label>
+                <div class="val" id="txt-sar-price">0</div>
+            </div>
+            <div class="price-card dna">
+                <label>أدنى سعر للبيع</label>
+                <div class="val" id="txt-dna-price">0</div>
+            </div>
+        </div>
+
+        <!-- ربحك الصافي -->
+        <div class="profit-banner" id="txt-profit-banner">ربحك الصافي : 0 لكل قطعة</div>
+
+        <!-- ادخال سعر البيع -->
+        <div class="user-price-card">
+            <label>حدد سعر البيع</label>
+            <input type="number" id="edittext1" class="input-box" placeholder="ادخل السعر هنا">
+            <div class="input-note">
+                <span>⚠️ يجب أن يكون السعر يساوي أو أعلى من الحد الأدنى</span>
+            </div>
+        </div>
+
+        <!-- فيديو المنتج إن وجد -->
+        <div id="video-container" style="display:none; margin-bottom: 16px;"></div>
+
+        <!-- المواصفات -->
+        <div class="specs-card">
+            <div class="specs-header">
+                <span class="specs-title">المواصفات</span>
+                <button class="copy-btn" onclick="copySpecs()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    نسخ المواصفات
+                </button>
+            </div>
+            <div class="specs-content" id="txt-osf-content">-</div>
+        </div>
+    </div>
+
+    <!-- الشريط السفلي للعمليات -->
+    <div class="bottom-actions-bar">
+        <button class="btn-download" onclick="openDownloadModal()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            تحميل الصور
+        </button>
+        <button class="btn-buy" id="btn-add-cart" onclick="handleBuyNow()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            شراء الآن
+        </button>
+    </div>
+
+    <!-- نافذة تنبيه سنمار الموحدة -->
+    <div class="modal-overlay" id="custom-alert-modal">
+        <div class="custom-dialog-card">
+            <div class="dialog-msg" id="alert-msg-text"></div>
+            <button class="dialog-btn-ok" onclick="closeAlertDialog()">موافق</button>
+        </div>
+    </div>
+
+    <!-- نافذة تحميل الصور -->
+    <div class="modal-overlay" id="download-modal">
+        <div class="custom-dialog-card" id="download-modal-card">
+            <div style="font-size: 13px; font-weight: 700; color:#424242; margin-bottom: 15px;" id="dl-title">خيارات تحميل الصور</div>
+            <div id="dl-options-box">
+                <button class="download-opt-btn" id="dl-btn-0" onclick="selectDlType(0)">تحميل هذه الصورة فقط</button>
+                <button class="download-opt-btn" id="dl-btn-1" onclick="selectDlType(1)">تحميل جميع الصور المرفقة</button>
+            </div>
+            <div id="dl-actions-box" style="display: flex; gap:10px; margin-top: 15px;">
+                <button style="flex:1; background:transparent; border:none; color:#9E9E9E; font-size:12px; font-weight:700; cursor:pointer;" onclick="closeDlModal()">إلغاء</button>
+                <button style="flex:1.2; background:var(--primary); border:none; color:#FFF; height:38px; border-radius:20px; font-size:12px; font-weight:700; cursor:pointer;" onclick="startDownloadProcess()">بدء التحميل</button>
+            </div>
+            <div id="dl-loading-box" style="display: none;">
+                <div class="progress-spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- [ تهيئة الفايربيز والمتغيرات العامة ] ---
+        const firebaseConfig = {
+            databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        let productData = {};
+        let productImages = [];
+        let swiperInstance = null;
+        let selectedDlIndex = -1;
+
+        // --- [ تحويل روابط Google Drive ] ---
+        function convertDriveUrl(url) {
+            if (!url || typeof url !== 'string') return '';
+            let fileId = '';
+            if (url.includes('id=')) fileId = url.split('id=')[1].split('&')[0];
+            else if (url.includes('/d/')) fileId = url.split('/d/')[1].split('/')[0];
+            return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : url;
+        }
+
+        function formatNum(num) {
+            return new Intl.NumberFormat('en-US').format(num);
+        }
+
+        // --- [ نافذة التنبيه الموحدة بنفس تصميم سنمار ] ---
+        function showDialog(msg) {
+            document.getElementById("alert-msg-text").innerText = msg;
+            document.getElementById("custom-alert-modal").style.display = "flex";
+        }
+        function closeAlertDialog() {
+            document.getElementById("custom-alert-modal").style.display = "none";
+        }
+
+        // --- [ تحميل تفاصيل المنتج ] ---
+        if (productId) {
+            db.ref("fbd").child(productId).on("value", snapshot => {
+                if (snapshot.exists()) {
+                    productData = snapshot.val();
+                    productData.id = productId;
+                    setupProductUI(productData);
+                } else {
+                    showDialog("المنتج غير موجود!");
+                }
+            });
+        } else {
+            showDialog("لم يتم تحديد المنتج!");
+        }
+
+        function setupProductUI(item) {
+            document.getElementById("txt-product-name").innerText = item.name || "منتج بدون اسم";
+            document.getElementById("txt-osf-content").innerText = item.osf || "لا توجد مواصفات متاحة";
+
+            const sar = parseFloat(String(item.sar || "0").replace(/[^0-9.]/g, '')) || 0;
+            const dna = parseFloat(String(item.dna || "0").replace(/[^0-9.]/g, '')) || 0;
+
+            document.getElementById("txt-sar-price").innerText = formatNum(sar);
+            document.getElementById("txt-dna-price").innerText = formatNum(dna);
+
+            const defaultProfit = Math.max(0, dna - sar);
+            document.getElementById("txt-profit-banner").innerText = `ربحك الصافي : ${formatNum(defaultProfit)} لكل قطعة`;
+
+            // جلب الصور المرفقة (img1 إلى img10)
+            productImages = [];
+            for (let i = 1; i <= 10; i++) {
+                let imgKey = "img" + i;
+                if (item[imgKey] && item[imgKey] !== "" && !item[imgKey].includes("Error")) {
+                    productImages.push(convertDriveUrl(item[imgKey]));
+                }
+            }
+
+            // إعداد السلايدر
+            const swiperWrapper = document.getElementById("swiper-images-wrapper");
+            swiperWrapper.innerHTML = "";
+            if (productImages.length > 0) {
+                productImages.forEach(imgUrl => {
+                    const slide = document.createElement("div");
+                    slide.className = "swiper-slide";
+                    slide.innerHTML = `<img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/400x280?text=خطأ+في+الصورة'">`;
+                    swiperWrapper.appendChild(slide);
+                });
+
+                if (swiperInstance) swiperInstance.destroy();
+                swiperInstance = new Swiper(".product-swiper", {
+                    pagination: { el: ".swiper-pagination", clickable: true },
+                    loop: productImages.length > 1
+                });
+            }
+
+            // فحص المخزون
+            let rawStock = item.stock !== undefined ? String(item.stock) : "0";
+            let stockCount = parseInt(rawStock.replace(/[^0-9]/g, '')) || 0;
+            const btnBuy = document.getElementById("btn-add-cart");
+
+            if (stockCount <= 0) {
+                btnBuy.disabled = true;
+                btnBuy.innerText = "نفدت الكمية";
+                btnBuy.style.opacity = "0.5";
+            } else {
+                btnBuy.disabled = false;
+                btnBuy.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> شراء الآن`;
+                btnBuy.style.opacity = "1.0";
+            }
+
+            checkFavoriteStatus();
+        }
+
+        // --- [ مراقب حساب الربح المباشر عند الكتابة ] ---
+        document.getElementById("edittext1").addEventListener("input", function(e) {
+            const sar = parseFloat(String(productData.sar || "0").replace(/[^0-9.]/g, '')) || 0;
+            const dna = parseFloat(String(productData.dna || "0").replace(/[^0-9.]/g, '')) || 0;
+            const val = e.target.value.trim();
+
+            if (val !== "") {
+                const userPrice = parseFloat(val) || 0;
+                const profit = userPrice - sar;
+                document.getElementById("txt-profit-banner").innerText = `ربحك الصافي : ${formatNum(Math.max(0, profit))} لكل قطعة`;
+            } else {
+                const defaultProfit = Math.max(0, dna - sar);
+                document.getElementById("txt-profit-banner").innerText = `ربحك الصافي : ${formatNum(defaultProfit)} لكل قطعة`;
+            }
+        });
+
+        // --- [ منطق زر شراء الآن ] ---
+        function handleBuyNow() {
+            if (!navigator.onLine) {
+                showDialog("غير متصل بالإنترنت!\nيرجى اعادة المحاوله لاحقا");
+                return;
+            }
+
+            let rawStock = productData.stock !== undefined ? String(productData.stock) : "0";
+            let stockCount = parseInt(rawStock.replace(/[^0-9]/g, '')) || 0;
+
+            if (stockCount <= 0) {
+                showDialog("عذراً، هذا المنتج غير متوفر حالياً");
+                return;
+            }
+
+            const userPriceStr = document.getElementById("edittext1").value.trim();
+            if (!userPriceStr) {
+                showDialog("❕ يرجى كتابة السعر أولاً");
+                return;
+            }
+
+            const userPrice = parseFloat(userPriceStr);
+            const minPrice = parseFloat(String(productData.dna || "0").replace(/[^0-9.]/g, '')) || 0;
+
+            if (isNaN(userPrice)) {
+                showDialog("⚠️ خطأ: يرجى كتابة أرقام فقط");
+                return;
+            }
+
+            if (userPrice < minPrice) {
+                showDialog("السعر أقل من الحد الأدنى:\n" + formatNum(minPrice));
+                return;
+            }
+
+            const userPhone = localStorage.getItem("user_phone") || "default";
+            const cartKey = "cart_list_" + userPhone;
+            let cartList = JSON.parse(localStorage.getItem(cartKey) || "[]");
+
+            let isExists = false;
+            let totalInCart = 0;
+
+            cartList.forEach(item => {
+                totalInCart += parseInt(item.count || "1");
+                if (String(item.id) === String(productId)) isExists = true;
+            });
+
+            if (!isExists && totalInCart >= 5) {
+                showDialog("السلة ممتلئة! الحد الأقصى 5 قطع");
+                return;
+            }
+
+            if (!isExists) {
+                cartList.push({
+                    id: productId,
+                    name: productData.name,
+                    price: userPriceStr,
+                    img1: productData.img1,
+                    sar_price: String(productData.sar || "0").replace(/[^0-9.]/g, ''),
+                    count: "1",
+                    stock: String(stockCount)
+                });
+                localStorage.setItem(cartKey, JSON.stringify(cartList));
+            }
+
+            window.location.href = "MfslhActivity.html";
+        }
+
+        // --- [ إدارة المفضلة ] ---
+        function checkFavoriteStatus() {
+            let favList = JSON.parse(localStorage.getItem("fav_list") || "[]");
+            const isFav = favList.some(item => String(item.id) === String(productId));
+            const favIcon = document.getElementById("fav-icon");
+
+            if (isFav) {
+                favIcon.setAttribute("fill", "#FC5700");
+                favIcon.setAttribute("stroke", "#FC5700");
+            } else {
+                favIcon.setAttribute("fill", "none");
+                favIcon.setAttribute("stroke", "#2B2D42");
+            }
+        }
+
+        function toggleFavorite() {
+            if (!productData.id) return;
+            let favList = JSON.parse(localStorage.getItem("fav_list") || "[]");
+            const index = favList.findIndex(item => String(item.id) === String(productId));
+
+            if (index === -1) {
+                favList.unshift(productData);
+                showDialog("تمت الإضافة للمفضلة");
+            } else {
+                favList.splice(index, 1);
+                showDialog("تم حذف المنتج من المفضلة");
+            }
+
+            localStorage.setItem("fav_list", JSON.stringify(favList));
+            checkFavoriteStatus();
+        }
+
+        // --- [ نسخ المواصفات ] ---
+        function copySpecs() {
+            const osfText = document.getElementById("txt-osf-content").innerText;
+            navigator.clipboard.writeText(osfText).then(() => {
+                showDialog("تم نسخ الوصف بنجاح");
+            });
+        }
+
+        // --- [ نافذة تحكم وتنزيل الصور ] ---
+        function openDownloadModal() {
+            if (productImages.length === 0) {
+                showDialog("لا توجد صور متاحة للتحميل");
+                return;
+            }
+            selectedDlIndex = -1;
+            document.getElementById("dl-btn-0").classList.remove("selected");
+            document.getElementById("dl-btn-1").classList.remove("selected");
+            document.getElementById("dl-options-box").style.display = "block";
+            document.getElementById("dl-actions-box").style.display = "flex";
+            document.getElementById("dl-loading-box").style.display = "none";
+            document.getElementById("dl-title").innerText = "خيارات تحميل الصور";
+            document.getElementById("download-modal").style.display = "flex";
+        }
+
+        function closeDlModal() {
+            document.getElementById("download-modal").style.display = "none";
+        }
+
+        function selectDlType(type) {
+            selectedDlIndex = type;
+            if (type === 0) {
+                document.getElementById("dl-btn-0").classList.add("selected");
+                document.getElementById("dl-btn-1").classList.remove("selected");
+            } else {
+                document.getElementById("dl-btn-1").classList.add("selected");
+                document.getElementById("dl-btn-0").classList.remove("selected");
+            }
+        }
+
+        function startDownloadProcess() {
+            if (selectedDlIndex === -1) {
+                showDialog("يرجى تحديد خيار أولاً");
+                return;
+            }
+
+            document.getElementById("dl-options-box").style.display = "none";
+            document.getElementById("dl-actions-box").style.display = "none";
+            document.getElementById("dl-loading-box").style.display = "block";
+            document.getElementById("dl-title").innerText = "جاري التحميل...";
+
+            setTimeout(() => {
+                if (selectedDlIndex === 0) {
+                    const activeIndex = swiperInstance ? swiperInstance.realIndex : 0;
+                    downloadSingleImage(productImages[activeIndex]);
+                } else {
+                    productImages.forEach(url => downloadSingleImage(url));
+                }
+                closeDlModal();
+                showDialog("تم بدء التحميل بنجاح");
+            }, 1000);
+        }
+
+        function downloadSingleImage(url) {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "product_image.jpg";
+            a.target = "_blank";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
