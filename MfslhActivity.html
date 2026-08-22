@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سنمار - سلة المشتريات</title>
-    <!-- مكتبات الفايربيس -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -24,15 +23,15 @@
         }
 
         body {
-            background-color: #FAFAFA;
-            color: #111;
+            background-color: #FFFFFF;
+            color: #111111;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             padding-bottom: 90px;
         }
 
-        /* الهيدر العلوي */
+        /* Toolbar / Header */
         .toolbar {
             display: flex;
             align-items: center;
@@ -45,6 +44,8 @@
             background: none;
             border: none;
             cursor: pointer;
+            display: flex;
+            align-items: center;
         }
 
         .btn-back svg {
@@ -53,9 +54,10 @@
         }
 
         .app-title {
-            color: #FC5700;
-            font-size: 24px;
+            color: #FF5500;
+            font-size: 26px;
             font-weight: bold;
+            letter-spacing: -0.5px;
         }
 
         .header-space {
@@ -63,53 +65,56 @@
         }
 
         .page-title {
-            padding: 10px 20px 15px 20px;
-            font-size: 18px;
+            padding: 10px 24px 20px 24px;
+            font-size: 20px;
             font-weight: bold;
-            color: #111;
+            color: #222222;
         }
 
-        /* قائمة العناصر */
+        /* Cart List Container */
         .cart-container {
             padding: 0 16px;
             flex: 1;
         }
 
+        /* Cart Item Card - Matching Image Design */
         .cart-item {
             background: #FFFFFF;
             border: 1px solid #EAEAEA;
             border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
 
         .product-img {
-            width: 85px;
-            height: 85px;
+            width: 90px;
+            height: 90px;
             object-fit: contain;
             border-radius: 8px;
+            flex-shrink: 0;
         }
 
         .product-details {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
 
         .product-name {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: bold;
-            color: #222;
+            color: #111111;
         }
 
         .price-text {
-            font-size: 13px;
-            color: #777;
+            font-size: 14px;
+            color: #888888;
+            font-weight: normal;
         }
 
         .action-column {
@@ -117,9 +122,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            height: 80px;
+            height: 85px;
         }
 
+        /* Delete Button */
         .btn-delete {
             background: #FF5252;
             border: none;
@@ -138,10 +144,11 @@
             fill: #FFFFFF;
         }
 
+        /* Quantity Control Buttons */
         .quantity-control {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .btn-qty {
@@ -151,55 +158,58 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 0;
         }
 
         .btn-qty svg {
             width: 22px;
             height: 22px;
-            fill: #FC5700;
+            fill: #FF5500;
         }
 
         .qty-value {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
-            color: #222;
-            min-width: 14px;
+            color: #222222;
+            min-width: 16px;
             text-align: center;
         }
 
-        /* السلة الفارغة */
+        /* Empty Cart View (lin_empty) */
         .empty-state {
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 60px 20px;
-            color: #888;
+            padding: 80px 20px;
+            color: #888888;
+            font-size: 18px;
         }
 
-        /* زر اتمام الشراء السفلي */
+        /* Bottom Checkout Button Bar */
         .bottom-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 16px 20px;
-            background: #FAFAFA;
+            padding: 16px 20px 24px 20px;
+            background: #FFFFFF;
         }
 
         .btn-checkout {
             width: 100%;
-            background-color: #FC5700;
+            background-color: #FF5500;
             color: #FFFFFF;
             border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 85, 0, 0.25);
         }
 
-        /* النافذة المنبثقة (Custom Dialog) */
+        /* Custom Dialog Overlay */
         .dialog-overlay {
             display: none;
             position: fixed;
@@ -207,7 +217,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -216,8 +226,8 @@
         .dialog-card {
             background: #FFFFFF;
             border-radius: 20px;
-            padding: 30px;
-            width: 80%;
+            padding: 24px;
+            width: 85%;
             max-width: 320px;
             display: flex;
             flex-direction: column;
@@ -226,18 +236,20 @@
         }
 
         .dialog-msg {
-            color: #000000;
+            color: #111111;
             font-size: 16px;
             text-align: center;
+            line-height: 1.5;
         }
 
         .dialog-btn {
-            background-color: #FC5700;
+            background-color: #FF5500;
             color: #FFFFFF;
             border: none;
-            border-radius: 10px;
-            padding: 10px 30px;
-            font-size: 15px;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
             width: 100%;
         }
@@ -245,31 +257,32 @@
 </head>
 <body>
 
-    <!-- Header Toolbar -->
+    <!-- Toolbar -->
     <div class="toolbar">
         <button class="btn-back" onclick="window.history.back()">
-            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#FC5700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#FF5500" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="app-title">سنمار</div>
         <div class="header-space"></div>
     </div>
 
+    <!-- Page Title -->
     <div class="page-title">سلة المشتريات</div>
 
-    <!-- قائمة المنتجات (ListView) -->
+    <!-- Cart Items List (listview1) -->
     <div id="listview1" class="cart-container"></div>
 
-    <!-- لينر السلة الفارغة (lin_empty) -->
+    <!-- Empty Basket View (lin_empty) -->
     <div id="lin_empty" class="empty-state">
         <p>السلة فارغة</p>
     </div>
 
-    <!-- زر اتمام الشراء -->
+    <!-- Bottom Bar -->
     <div class="bottom-bar">
         <button class="btn-checkout" onclick="onCheckoutClick()">اتمام الشراء</button>
     </div>
 
-    <!-- Custom Dialog -->
+    <!-- Alert Dialog -->
     <div id="customDialog" class="dialog-overlay">
         <div class="dialog-card">
             <div id="dialogMsg" class="dialog-msg"></div>
@@ -278,7 +291,7 @@
     </div>
 
     <script>
-        // 1. تهيئة الفايربيس (قاعدة البيانات الخاصة بك)
+        // التهيئة مع الفايربيس
         const firebaseConfig = {
             databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com"
         };
@@ -287,12 +300,29 @@
         }
         const db = firebase.database();
 
-        // 2. دالة التنسيق الاحترافي للأرقام
-        function formatNumber(val) {
-            return new Intl.NumberFormat('en-US').format(val);
+        // 1. دالة معالجة رابط Google Drive لإظهاره مباشرة مثل Glide
+        function convertDriveUrl(url) {
+            if (!url) return '';
+            const rawUrl = String(url).trim();
+            if (rawUrl.includes('drive.google.com')) {
+                let fileId = '';
+                if (rawUrl.includes('/d/')) {
+                    fileId = rawUrl.split('/d/')[1].split('/')[0].split('?')[0];
+                } else if (rawUrl.includes('id=')) {
+                    fileId = rawUrl.split('id=')[1].split('&')[0];
+                }
+                if (fileId) {
+                    return 'https://lh3.googleusercontent.com/u/0/d/' + fileId;
+                }
+            }
+            return rawUrl;
         }
 
-        // 3. كود الدايلوج (showCustomDialog)
+        // 2. دالة تنسيق الأرقام بالفواصل مثل DecimalFormat(#,###)
+        function formatNumber(val) {
+            return new Intl.NumberFormat('en-US').format(Math.round(val));
+        }
+
         function showCustomDialog(message) {
             document.getElementById('dialogMsg').innerText = message;
             document.getElementById('customDialog').style.display = 'flex';
@@ -302,12 +332,12 @@
             document.getElementById('customDialog').style.display = 'none';
         }
 
-        // جلب معرف سلة المستخدم بناءً على رقمه (cart_list_userPhone)
+        // 3. مفتاح السلة الخاص بالمستخدم من SharedPreferences (localStorage)
         const userPhone = localStorage.getItem('user_phone') || 'default';
         const cartKey = 'cart_list_' + userPhone;
 
         function getBasketList() {
-            const savedData = localStorage.getItem(cartKey);
+            const savedData = localStorage.getItem(cartKey) || localStorage.getItem('data') || "";
             if (!savedData || savedData === "[]") return [];
             try {
                 return JSON.parse(savedData);
@@ -320,7 +350,7 @@
             localStorage.setItem(cartKey, JSON.stringify(list));
         }
 
-        // 4. بناء وعرض القائمة (منطق onCreate + getView)
+        // 4. عرض عناصر السلة مع الفحص وإظهار اللينر أو القائمة
         function renderCart() {
             const list = getBasketList();
             const lv = document.getElementById('listview1');
@@ -339,16 +369,22 @@
 
             list.forEach((item, pos) => {
                 const count = parseInt(item.count || 1);
-                const currentPriceTotal = parseFloat(String(item.price).replace(/[^0-9.]/g, '')) || 0;
-                const currentSarTotal = parseFloat(String(item.sar_price).replace(/[^0-9.]/g, '')) || 0;
+                
+                // استخراج السعر وتنظيفه من أي رموز غير رقمية
+                const currentPriceTotal = parseFloat(String(item.price || 0).replace(/[^0-9.]/g, '')) || 0;
+                const currentSarTotal = parseFloat(String(item.sar_price || 0).replace(/[^0-9.]/g, '')) || 0;
 
                 const unitUser = currentPriceTotal / count;
                 const unitSar = currentSarTotal / count;
 
+                // قراءة رابط الصورة المسجل تحت المفتاح img1 ومعالجته لدرايف
+                const rawImg = item.img1 || item.image1 || item.img || '';
+                const displayImg = convertDriveUrl(rawImg);
+
                 const itemCard = document.createElement('div');
                 itemCard.className = 'cart-item';
                 itemCard.innerHTML = `
-                    <img id="imageview1" class="product-img" src="${item.img1 || ''}" alt="img">
+                    <img id="imageview1" class="product-img" src="${displayImg}" alt="img" onerror="this.src='https://via.placeholder.com/90'">
                     <div class="product-details">
                         <div id="textview1" class="product-name">${item.name || ''}</div>
                         <div id="textview2" class="price-text">سعر الجملة: ${formatNumber(currentSarTotal)}</div>
@@ -373,7 +409,7 @@
             });
         }
 
-        // كود التحكم بالكمية (img_plus)
+        // 5. زيادة الكمية مع التحقق من الحد الأقصى والمخزن
         function increaseQty(pos, unitUser, unitSar) {
             const list = getBasketList();
             const item = list[pos];
@@ -397,14 +433,14 @@
                 if (count < stockAvailable) {
                     updateData(pos, count + 1, unitUser, unitSar);
                 } else {
-                    alert("الكمية نافذة! المتوفر فقط (" + stockAvailable + ") قطع");
+                    showCustomDialog("الكمية نافذة! المتوفر فقط (" + stockAvailable + ") قطع");
                 }
             } else {
-                alert("السلة ممتلئة (5 قطع)");
+                showCustomDialog("السلة ممتلئة (5 قطع)");
             }
         }
 
-        // كود التحكم بالكمية (img_minus)
+        // 6. تقليل الكمية
         function decreaseQty(pos, unitUser, unitSar) {
             const list = getBasketList();
             const item = list[pos];
@@ -416,6 +452,7 @@
             }
         }
 
+        // 7. تحديث البيانات وحفظها في SharedPreferences/localStorage
         function updateData(p, nc, uPrice, uSar) {
             const list = getBasketList();
             list[p].count = String(nc);
@@ -426,7 +463,7 @@
             renderCart();
         }
 
-        // كود زر الحذف (imageview2)
+        // 8. حذف عنصر من السلة
         function removeItem(pos) {
             const list = getBasketList();
             list.splice(pos, 1);
@@ -434,7 +471,7 @@
             renderCart();
         }
 
-        // 5. كود زر "اتمام الشراء" (التحقق من الإنترنت والمخزن في fbd)
+        // 9. زر إتمام الشراء والتحقق من الفايربيس
         function onCheckoutClick() {
             if (!navigator.onLine) {
                 showCustomDialog("يرجى الاتصال بالإنترنت لإتمام الطلب");
@@ -447,7 +484,6 @@
                 return;
             }
 
-            // فحص قاعدة بيانات الفايربيز مسار (fbd)
             db.ref("fbd").once("value").then(snapshot => {
                 let isAllAvailable = true;
                 let unavailableProductName = "";
@@ -494,7 +530,6 @@
                         }
                     });
 
-                    // الانقال لصفحة OrderActivity.html مع الحقول المحددة
                     const params = new URLSearchParams();
                     params.append("total_price", Math.round(finalOrderTotal));
                     params.append("gmlhkle", Math.round(finalGmlhTotal));
