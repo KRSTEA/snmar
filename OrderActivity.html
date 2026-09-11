@@ -1,1 +1,732 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سنمار - معلومات الطلب</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        @font-face {
+            font-family: 'font1';
+            src: url('fonts/font1.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'font1', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #FFFFFF;
+            color: #111111;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background-color: #FFFFFF;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-back svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .app-title {
+            color: #FF5500;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .header-space {
+            width: 28px;
+        }
+
+        /* Form Container */
+        .main-container {
+            padding: 10px 16px;
+            flex: 1;
+        }
+
+        .field-group {
+            margin-bottom: 12px;
+        }
+
+        .field-label {
+            font-size: 15px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 6px;
+            text-align: right;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            background: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 12px;
+            padding: 10px 12px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+            cursor: pointer;
+        }
+
+        .input-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 13px;
+            color: #000000;
+            background: transparent;
+        }
+
+        .input-box input::placeholder {
+            color: #999999;
+        }
+
+        .icon-left {
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            object-fit: contain;
+        }
+
+        .icon-right {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        /* Section L3 - Summary & Notes */
+        #l3 {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .summary-card {
+            background: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.03);
+            margin-bottom: 16px;
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #EEEEEE;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .summary-header svg {
+            width: 16px;
+            height: 16px;
+            fill: #FF5500;
+        }
+
+        .summary-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .summary-row:not(:last-child) {
+            border-bottom: 1px solid #EEEEEE;
+        }
+
+        .row-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333333;
+        }
+
+        .icon-bg {
+            background: #FFF0E6;
+            border-radius: 8px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-bg svg {
+            width: 20px;
+            height: 20px;
+            fill: #FF5500;
+        }
+
+        .row-value {
+            font-size: 15px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .notes-card {
+            background: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.03);
+        }
+
+        .notes-card textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 12px;
+            color: #111111;
+            margin-top: 6px;
+            height: 60px;
+        }
+
+        /* Bottom Fixed Action Buttons */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px 20px 16px;
+            background: #FFFFFF;
+        }
+
+        .btn-action {
+            width: 100%;
+            background-color: #FF5500;
+            color: #FFFFFF;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 85, 0, 0.25);
+        }
+
+        /* Selection Search Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            width: 88%;
+            max-width: 380px;
+            max-height: 65vh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .search-box {
+            background: #F5F5F5;
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .modal-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-list li {
+            padding: 12px 8px;
+            font-size: 14px;
+            color: #424242;
+            border-bottom: 1px solid #F0F0F0;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        /* Standard Alert Dialog */
+        .dialog-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 20px;
+            width: 80%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .dialog-card p {
+            font-size: 15px;
+            color: #000000;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .dialog-card button {
+            width: 100%;
+            background: #FF5500;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="btn-back" onclick="window.history.back()">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#FF5500" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="app-title">سنمار</div>
+        <div class="header-space"></div>
+    </div>
+
+    <div class="main-container">
+        <!-- Section L1: User Information Inputs -->
+        <div id="l1">
+            <div class="field-group">
+                <div class="field-label">اسم الزبون</div>
+                <div class="input-box">
+                    <input type="text" id="edittext1" placeholder="اضغط هنا لكتابة الاسم">
+                    <svg class="icon-left" viewBox="0 0 24 24" fill="#FF5500"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field-label">رقم الهاتف</div>
+                <div class="input-box">
+                    <svg class="icon-right" onclick="pastePhone()" viewBox="0 0 24 24" fill="#888888"><path d="M19 2h-4.18C14.4 0.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/></svg>
+                    <input type="tel" id="edittext2" maxlength="11" placeholder="مثل: 07XXXXXXXXX">
+                    <svg class="icon-left" viewBox="0 0 24 24" fill="#FF5500"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field-label">اختر المحافظة</div>
+                <div class="input-box" onclick="openProvinceModal()">
+                    <span id="txt_province" style="flex:1; font-size:13px; color:#888888;">اختر المحافظة من هنا</span>
+                    <svg class="icon-left" viewBox="0 0 24 24" fill="#FF5500"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field-label">منطقة الزبون</div>
+                <div class="input-box" onclick="openAreaModal()">
+                    <span id="txt_area" style="flex:1; font-size:13px; color:#888888;">اختر المحافظة أولاً</span>
+                    <svg class="icon-left" viewBox="0 0 24 24" fill="#FF5500"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field-label">اقرب نقطة دالة</div>
+                <div class="input-box">
+                    <input type="text" id="edittext4" placeholder="مثال:  قرب جامع التقوى">
+                    <svg class="icon-left" viewBox="0 0 24 24" fill="#FF5500"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section L3: Summary & Final Step -->
+        <div id="l3">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                    <span>ملخص الطلب النهائي</span>
+                </div>
+
+                <div class="summary-row">
+                    <div class="row-label">
+                        <div class="icon-bg"><svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/></svg></div>
+                        <span>سعر التوصيل</span>
+                    </div>
+                    <div id="textview6" class="row-value">5,000</div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="row-label">
+                        <div class="icon-bg"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg></div>
+                        <span>سعر الكلي مع التوصيل</span>
+                    </div>
+                    <div id="textview9" class="row-value">0</div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="row-label">
+                        <div class="icon-bg"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div>
+                        <span>الربح الصافي</span>
+                    </div>
+                    <div id="text_rbhsafe" class="row-value">0</div>
+                </div>
+            </div>
+
+            <div class="notes-card">
+                <div class="field-label">ملاحظات :</div>
+                <textarea id="edittext5" placeholder="اكتب ملاحظاتك حول الطلب &quot; غير مطلوب &quot;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Action Button Bar -->
+    <div class="bottom-bar">
+        <button id="but1" class="btn-action" onclick="onNextClick()">التالي</button>
+        <button id="button2" class="btn-action" style="display:none;" onclick="onOrderClick()">شراء</button>
+    </div>
+
+    <!-- Modal Dropdown for Province and Area -->
+    <div id="searchModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="search-box">
+                🔍 <input type="text" id="modalSearchInput" placeholder="🔍 ابحث هنا...">
+            </div>
+            <ul id="modalList" class="modal-list"></ul>
+        </div>
+    </div>
+
+    <!-- General Alert Dialog -->
+    <div id="alertDialog" class="modal-overlay">
+        <div class="dialog-card">
+            <p id="alertMsg"></p>
+            <button onclick="closeAlertDialog()">موافق</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Global State & Data
+        const urlParams = new URLSearchParams(window.location.search);
+        const priceStr = urlParams.get('total_price') || '0';
+        const gmlhStr = urlParams.get('gmlhkle') || '0';
+        const fullCartData = urlParams.get('full_cart') || '[]';
+
+        const provinces = [
+            "بغداد", "البصرة", "نينوى", "أربيل", "النجف", "كربلاء",
+            "ذي قار", "كركوك", "الأنبار", "بابل", "ديالى", "ميسان",
+            "القادسية", "المثنى", "صلاح الدين", "دهوك", "السليمانية", "واسط", "حلبجة"
+        ];
+
+        let selectedProvince = "";
+        let selectedArea = "";
+        let areaList = [];
+        let currentModalMode = ""; // 'province' or 'area'
+
+        function formatNumber(val) {
+            return new Intl.NumberFormat('en-US').format(Math.round(val));
+        }
+
+        function showAlertDialog(msg) {
+            document.getElementById('alertMsg').innerText = msg;
+            document.getElementById('alertDialog').style.display = 'flex';
+        }
+
+        function closeAlertDialog() {
+            document.getElementById('alertDialog').style.display = 'none';
+        }
+
+        async function pastePhone() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) document.getElementById('edittext2').value = text.trim();
+            } catch (e) {}
+        }
+
+        /* Modal Selection Functions */
+        function openProvinceModal() {
+            currentModalMode = 'province';
+            renderModalList(provinces, "🔍 ابحث عن المحافظة...");
+            document.getElementById('searchModal').style.display = 'flex';
+        }
+
+        function openAreaModal() {
+            if (!selectedProvince) {
+                showAlertDialog("اختر المحافظة أولاً");
+                return;
+            }
+            if (areaList.length === 0 || areaList[0] === "جاري تحميل المناطق...") return;
+            currentModalMode = 'area';
+            renderModalList(areaList, "🔍 ابحث عن المنطقة...");
+            document.getElementById('searchModal').style.display = 'flex';
+        }
+
+        function renderModalList(items, placeholder) {
+            const searchInput = document.getElementById('modalSearchInput');
+            const ul = document.getElementById('modalList');
+            searchInput.placeholder = placeholder;
+            searchInput.value = '';
+
+            const filterAndRender = (query) => {
+                ul.innerHTML = '';
+                const filtered = items.filter(i => i.toLowerCase().includes(query.toLowerCase()));
+                filtered.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerText = item;
+                    li.onclick = () => selectItem(item);
+                    ul.appendChild(li);
+                });
+            };
+
+            filterAndRender('');
+            searchInput.oninput = (e) => filterAndRender(e.target.value.trim());
+        }
+
+        function selectItem(item) {
+            document.getElementById('searchModal').style.display = 'none';
+            if (currentModalMode === 'province') {
+                selectedProvince = item;
+                document.getElementById('txt_province').innerText = item;
+                document.getElementById('txt_province').style.color = '#000000';
+                
+                // Reset Area
+                selectedArea = "";
+                document.getElementById('txt_area').innerText = "جاري تحميل المناطق...";
+                document.getElementById('txt_area').style.color = '#888888';
+                
+                calculateTotals();
+                fetchAreas(item);
+            } else {
+                selectedArea = item;
+                document.getElementById('txt_area').innerText = item;
+                document.getElementById('txt_area').style.color = '#000000';
+            }
+        }
+
+        function fetchAreas(province) {
+            db.ref("areas").child(province).once("value").then(snapshot => {
+                areaList = [];
+                if (snapshot.exists() && snapshot.hasChildren()) {
+                    snapshot.forEach(child => {
+                        const val = child.val();
+                        areaList.push(typeof val === 'string' ? val : child.key);
+                    });
+                    document.getElementById('txt_area').innerText = "اختر المنطقة";
+                } else {
+                    document.getElementById('txt_area').innerText = "لا توجد مناطق متاحة";
+                }
+            }).catch(() => {
+                document.getElementById('txt_area').innerText = "خطأ في جلب البيانات";
+            });
+        }
+
+        function calculateTotals() {
+            const deliveryFee = 5000;
+            const amountCustomer = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 0;
+            const amountGmlh = parseFloat(gmlhStr.replace(/[^0-9.]/g, '')) || 0;
+
+            document.getElementById('textview6').innerText = formatNumber(deliveryFee);
+            document.getElementById('textview9').innerText = formatNumber(amountCustomer + deliveryFee);
+            document.getElementById('text_rbhsafe').innerText = formatNumber(amountCustomer - amountGmlh);
+        }
+
+        /* Next Button Logic */
+        function onNextClick() {
+            const s1 = document.getElementById('edittext1').value.trim();
+            const s2 = document.getElementById('edittext2').value.trim();
+            const s4 = document.getElementById('edittext4').value.trim();
+
+            const isAllFieldsFilled = s1 !== "" && s2 !== "" && s4 !== "";
+            const isProvinceSelected = selectedProvince !== "";
+            const isPhoneValid = s2.length === 11;
+
+            if (!isAllFieldsFilled || !isProvinceSelected) {
+                showAlertDialog("يرجى ملء جميع المعلومات المطلوبة واختيار عنصر من القائمة");
+                return;
+            }
+
+            if (!isPhoneValid) {
+                showAlertDialog("يجب كتابة رقم الزبون المكون من 11 رقم");
+                return;
+            }
+
+            document.getElementById('l1').style.display = 'none';
+            const l3 = document.getElementById('l3');
+            l3.style.display = 'block';
+            setTimeout(() => { l3.style.opacity = '1'; }, 50);
+
+            document.getElementById('but1').style.display = 'none';
+            document.getElementById('button2').style.display = 'block';
+        }
+
+        /* Order Button Logic */
+        function onOrderClick() {
+            if (!navigator.onLine) {
+                showAlertDialog("غير متصل بالإنترنت!\nيرجى اعادة المحاوله لاحقا");
+                return;
+            }
+
+            const name = document.getElementById('edittext1').value.trim();
+            const phone = document.getElementById('edittext2').value.trim();
+            const point = document.getElementById('edittext4').value.trim();
+            const notes = document.getElementById('edittext5').value.trim();
+            const tosel = document.getElementById('textview6').innerText;
+
+            if (phone.length !== 11 || !phone.startsWith("07")) {
+                showAlertDialog("رقم الهاتف يجب أن يكون 11 رقم ويبدأ بـ 07");
+                return;
+            }
+
+            if (!selectedProvince) {
+                showAlertDialog("يرجى اختيار المحافظة");
+                return;
+            }
+
+            if (!selectedArea || selectedArea.includes("اختر") || selectedArea.includes("جاري")) {
+                showAlertDialog("يرجى اختيار منطقة صحيحة");
+                return;
+            }
+
+            if (!name || !point) {
+                showAlertDialog("يرجى ملء كافة التفاصيل وااختيار منطقة صحيحة");
+                return;
+            }
+
+            const btnOrder = document.getElementById('button2');
+            btnOrder.disabled = true;
+
+            let mainTotal = parseFloat(document.getElementById('textview9').innerText.replace(/[^0-9.]/g, '')) || 0;
+            let finalTotalProfit = 0;
+
+            try {
+                const list = JSON.parse(fullCartData);
+                list.forEach(item => {
+                    const pCus = parseFloat(String(item.price || 0).replace(/[^0-9.]/g, '')) || 0;
+                    const pSar = parseFloat(String(item.sar_price || 0).replace(/[^0-9.]/g, '')) || 0;
+                    finalTotalProfit += (pCus - pSar);
+                });
+            } catch (e) { finalTotalProfit = 0; }
+
+            // Generate Random Order ID
+            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            let randomId = "";
+            for (let i = 0; i < 8; i++) {
+                randomId += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            const accountPhone = localStorage.getItem('user_phone') || 'غير معروف';
+            const shopName = localStorage.getItem('shop_name') || 'غير معروف';
+            const dateStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+            db.ref("fdb_users").child(accountPhone).once("value").then(userSnap => {
+                const userToken = userSnap.hasChild("fcmToken") ? String(userSnap.child("fcmToken").val()) : "none";
+
+                const ref = db.ref("all_orders");
+                const newRef = ref.push();
+                const pushKey = newRef.key;
+
+                const orderMap = {
+                    key: pushKey,
+                    user_phone: accountPhone,
+                    shop_name: shopName,
+                    fcmToken: userToken,
+                    cus_phone: phone,
+                    order_id: randomId,
+                    cus_name: name,
+                    cus_city: selectedProvince,
+                    cus_area: selectedArea,
+                    cus_point: point,
+                    order_date: dateStr,
+                    delivery: tosel,
+                    total_price: String(Math.round(mainTotal)),
+                    order_profit: String(Math.round(finalTotalProfit)),
+                    status: "قيد الانتظار",
+                    cart_items: fullCartData,
+                    is_collected: "false",
+                    notes: notes === "" ? "لا توجد ملاحظات" : notes
+                };
+
+                newRef.set(orderMap).then(() => {
+                    // Send FCM Notification
+                    db.ref("Admin_Config/token").once("value").then(adminSnap => {
+                        if (adminSnap.exists()) {
+                            const adminToken = adminSnap.val();
+                            fetch("https://script.google.com/macros/s/AKfycbx8fQDIcHyf8-QvL09Pwz2Zz20WLZ5J40nfR7ldTJsRAUlnl-ea56CIGlmDzS-ydwGfSg/exec", {
+                                method: 'POST',
+                                mode: 'no-cors',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: new URLSearchParams({
+                                    token: adminToken,
+                                    title: "📦 الطلبات",
+                                    message: "تم طلب منتج من قبل: " + accountPhone
+                                })
+                            });
+                        }
+                    });
+
+                    // Clear Cart
+                    const cartKey = 'cart_list_' + accountPhone;
+                    localStorage.removeItem(cartKey);
+                    localStorage.removeItem('cart_list');
+
+                    showAlertDialog("تم الطلب بنجاح: " + randomId);
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 2000);
+                }).catch(() => {
+                    btnOrder.disabled = false;
+                    showAlertDialog("حدث خطأ، يرجى المحاولة لاحقاً");
+                });
+            });
+        }
+
+        // Close Modal when clicking outside
+        window.onclick = function(e) {
+            const searchModal = document.getElementById('searchModal');
+            if (e.target === searchModal) searchModal.style.display = "none";
+        };
+    </script>
+</body>
+</html>
