@@ -588,7 +588,7 @@
 
             emptyView.style.display = "none";
 
-            list.forEach(item => {
+            list.forEach((item, index) => {
                 const status = String(item.status || "");
                 
                 // Determine Status Color
@@ -618,7 +618,7 @@
 
                 const card = document.createElement("div");
                 card.className = "order-card";
-                card.onclick = (e) => openOrderDetails(item, e);
+                card.onclick = (e) => openOrderDetailsIndex(index, e);
 
                 let cancelBtnHtml = "";
                 if (status === "قيد الانتظار") {
@@ -657,7 +657,7 @@
                             <span class="total-price-val">${formatNum(rawPrice)}</span>
                         </div>
                         <div class="actions-box">
-                            <button class="btn-view-order">عرض الطلب</button>
+                            <button class="btn-view-order" onclick="openOrderDetailsIndex(${index}, event)">عرض الطلب</button>
                             ${cancelBtnHtml}
                         </div>
                     </div>
@@ -710,7 +710,7 @@
 
         /* Cancel Order Logic */
         function openCancelModal(key, event) {
-            event.stopPropagation();
+            if (event) event.stopPropagation();
             targetCancelKey = key;
             document.getElementById("cancelModal").style.display = "flex";
         }
@@ -722,14 +722,27 @@
 
         function executeCancelOrder() {
             if (targetCancelKey) {
-                db.ref("all_orders").child(targetCancelKey).child("status").setValue("ملغي");
-                closeCancelModal();
+                db.ref("all_orders").child(targetCancelKey).child("status").setValue("ملغي")
+                .then(() => {
+                    closeCancelModal();
+                    // تحديث الحالة محلياً لإظهار الإلغاء فوراً
+                    const localItem = rawOrdersList.find(o => o.order_key === targetCancelKey);
+                    if (localItem) localItem.status = "ملغي";
+                    applyFilters();
+                })
+                .catch(err => {
+                    alert("حدث خطأ أثناء إلغاء الطلب");
+                    closeCancelModal();
+                });
             }
         }
 
         /* Navigation to Details Page */
-        function openOrderDetails(item, event) {
+        function openOrderDetailsIndex(index, event) {
             if (event) event.stopPropagation();
+
+            const item = filteredOrdersList[index];
+            if (!item) return;
 
             const params = new URLSearchParams();
             params.append("order_id", item.order_id || "");
