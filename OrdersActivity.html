@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سنمار - الطلبات</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary: #FC5700;
+            --primary-light: #FFF4EE;
+            --bg-gray: #F8F9FA;
+            --text-main: #2B2D42;
+            --text-muted: #8D99AE;
+            --border-color: #E9ECEF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            padding-bottom: 85px;
+        }
+
+        /* Header Bar */
+        .app-header {
+            background-color: #FFFFFF;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .app-logo {
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--primary);
+        }
+
+        /* Search & Filter Bar */
+        .search-container {
+            padding: 12px 16px;
+            background: #FFF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box {
+            flex: 1;
+            background: #F1F3F5;
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .filter-btn {
+            width: 38px;
+            height: 38px;
+            background: #F1F3F5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            flex-shrink: 0;
+        }
+
+        .filter-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-main);
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            padding: 12px 20px 8px;
+            color: #1A1A1A;
+        }
+
+        /* Orders Container */
+        .orders-list {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Order Card - Matching App Layout */
+        .order-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .card-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .cus-name-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .cus-name-box svg {
+            width: 16px;
+            height: 16px;
+            fill: #666;
+        }
+
+        .date-box {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #666666;
+        }
+
+        .date-box svg {
+            width: 14px;
+            height: 14px;
+            fill: #888;
+        }
+
+        .order-metrics {
+            display: flex;
+            gap: 16px;
+            text-align: center;
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .metric-val {
+            font-size: 11px;
+            color: #555555;
+            font-weight: bold;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #EEEEEE;
+            width: 100%;
+        }
+
+        .card-bottom-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .total-price-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .total-price-val {
+            font-size: 13px;
+            color: #000000;
+            font-weight: 800;
+        }
+
+        .actions-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-view-order {
+            background-color: var(--primary);
+            color: #FFFFFF;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-cancel-order {
+            background-color: #990000;
+            color: #FFFFFF;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-cancel-order.disabled {
+            background-color: #FFFFFF;
+            color: #000000;
+            border: 1px solid #B71C1C;
+            cursor: default;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        /* Modals & Dialogs */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background: #FFF;
+            width: 85%;
+            max-width: 320px;
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .filter-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-header h3 {
+            font-size: 16px;
+            color: #000;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #757575;
+            cursor: pointer;
+        }
+
+        .filter-subtitle {
+            font-size: 11px;
+            color: #757575;
+            text-align: right;
+            margin-top: -6px;
+        }
+
+        .status-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status-option.selected {
+            background: #FFF5F0;
+            border-color: var(--primary);
+            color: #000;
+        }
+
+        .radio-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #CCC;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-option.selected .radio-dot {
+            border-color: var(--primary);
+        }
+
+        .status-option.selected .radio-dot::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-apply {
+            flex: 1.4;
+            background: var(--primary);
+            color: #FFF;
+            border: none;
+            padding: 10px;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-clear {
+            flex: 0.8;
+            background: #FFF;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Bottom Fixed Nav Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background: #FFFFFF;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -3px 15px rgba(0,0,0,0.08);
+            z-index: 1000;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8D99AE;
+            text-decoration: none;
+            font-size: 11px;
+            width: 20%;
+        }
+
+        .nav-item svg {
+            width: 22px;
+            height: 22px;
+            fill: #8D99AE;
+            margin-bottom: 3px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .nav-item.active svg {
+            fill: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="app-logo">سنمار</div>
+    </header>
+
+    <!-- Search & Filter Bar -->
+    <div class="search-container">
+        <button class="filter-btn" onclick="openFilterModal()">
+            <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+        </button>
+        <div class="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8D99AE" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="search-input" placeholder="ابحث باسم الزبون أو الهاتف أو معرف الطلب" oninput="applyFilters()">
+        </div>
+    </div>
+
+    <!-- Section Title -->
+    <div class="section-title">قائمة الطلبات</div>
+
+    <!-- Orders List -->
+    <div id="orders-container" class="orders-list"></div>
+
+    <!-- Empty View -->
+    <div id="empty-view" class="empty-state">
+        <p>لا توجد طلبات لعرضها</p>
+    </div>
+
+    <!-- Filter Modal Dialog -->
+    <div id="filterModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="filter-header">
+                <button class="close-btn" onclick="closeFilterModal()">✕</button>
+                <h3>فلترة الطلبات</h3>
+            </div>
+            <div class="filter-subtitle">اختر حالة الطلبات التي تريد عرضها</div>
+
+            <div id="status-options-container" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+            <div class="filter-actions">
+                <button class="btn-clear" onclick="clearFilter()">إلغاء</button>
+                <button class="btn-apply" onclick="confirmFilter()">تطبيق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div id="cancelModal" class="modal-overlay">
+        <div class="modal-card" style="text-align:center; padding:24px;">
+            <p style="font-size:14px; color:#424242; font-weight:bold; margin-bottom:20px;">هل أنت متأكد من إلغاء هذا الطلب؟</p>
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button onclick="closeCancelModal()" style="flex:0.7; background:transparent; border:none; color:#9E9E9E; font-weight:bold; cursor:pointer;">تراجع</button>
+                <button onclick="executeCancelOrder()" style="flex:1; background:#B71C1C; color:#FFF; border:none; padding:10px; border-radius:20px; font-weight:bold; cursor:pointer;">نعم، إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="AsasehActivity.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/></svg>
+            <span>المنتجات</span>
+        </a>
+        <a href="OrdersActivity.html" class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            <span>الطلبات</span>
+        </a>
+        <a href="FavoritesActivity.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span>المفضلة</span>
+        </a>
+        <a href="ChallengesActivity.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+            <span>التحديات</span>
+        </a>
+        <a href="SettingsActivity.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6-3.6z"/></svg>
+            <span>الإعدادات</span>
+        </a>
+    </nav>
+
+    <script>
+        // Firebase Setup
+        const firebaseConfig = {
+            databaseURL: "https://alihsn-3c914-default-rtdb.firebaseio.com"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const current_user_phone = localStorage.getItem("user_phone") || "";
+
+        let rawOrdersList = [];
+        let filteredOrdersList = [];
+
+        const statusList = ["كل الطلبات", "قيد الانتظار", "قيد التجهيز", "قيد التوصيل", "تم التوصيل", "مرفوض"];
+        let appliedStatus = "كل الطلبات";
+        let tempSelectedStatus = "كل الطلبات";
+        let targetCancelKey = null;
+
+        function formatNum(num) {
+            return new Intl.NumberFormat('en-US').format(Math.round(num));
+        }
+
+        // Fetch user orders from Firebase
+        db.ref("all_orders").orderByChild("user_phone").equalTo(current_user_phone).on("value", snapshot => {
+            rawOrdersList = [];
+            if (snapshot.exists()) {
+                snapshot.forEach(child => {
+                    const val = child.val();
+                    if (val) {
+                        val.order_key = child.key;
+                        rawOrdersList.unshift(val); // Reverse order
+                    }
+                });
+            }
+            applyFilters();
+        });
+
+        function applyFilters() {
+            const searchText = document.getElementById("search-input").value.trim().toLowerCase();
+            filteredOrdersList = [];
+
+            rawOrdersList.forEach(item => {
+                const customer = String(item.cus_name || "").toLowerCase();
+                const phone = String(item.cus_phone || "").toLowerCase();
+                const orderId = String(item.order_id || "").toLowerCase();
+                const status = String(item.status || "").trim();
+
+                const matchesSearch = searchText === "" || customer.includes(searchText) || phone.includes(searchText) || orderId.includes(searchText);
+                let matchesStatus = false;
+
+                if (appliedStatus === "كل الطلبات") {
+                    matchesStatus = true;
+                } else if (appliedStatus === "مرفوض") {
+                    matchesStatus = (status === "مرفوض" || status === "ملغي");
+                } else {
+                    matchesStatus = (status === appliedStatus);
+                }
+
+                if (matchesSearch && matchesStatus) {
+                    filteredOrdersList.push(item);
+                }
+            });
+
+            renderOrders(filteredOrdersList);
+        }
+
+        function renderOrders(list) {
+            const container = document.getElementById("orders-container");
+            const emptyView = document.getElementById("empty-view");
+            container.innerHTML = "";
+
+            if (!list || list.length === 0) {
+                emptyView.style.display = "flex";
+                return;
+            }
+
+            emptyView.style.display = "none";
+
+            list.forEach(item => {
+                const status = String(item.status || "");
+                
+                // Determine Status Color
+                let statusColor = "#B71C1C";
+                if (status === "قيد التوصيل") statusColor = "#0D47A1";
+                else if (status === "قيد الانتظار") statusColor = "#E65100";
+                else if (status === "تم التوصيل") statusColor = "#1B5E20";
+                else if (status === "قيد التجهيز") statusColor = "#1261DC";
+
+                // Parse Pieces Count
+                let totalPieces = 0;
+                try {
+                    if (item.cart_items) {
+                        const parsedCart = JSON.parse(item.cart_items);
+                        parsedCart.forEach(p => {
+                            totalPieces += parseInt(String(p.count || 1));
+                        });
+                    }
+                } catch (e) { totalPieces = 0; }
+
+                // Parse Date
+                let displayDate = String(item.order_date || "");
+                if (displayDate.includes(" ")) displayDate = displayDate.split(" ")[0];
+
+                // Parse Total Price
+                const rawPrice = parseFloat(String(item.total_price || 0).replace(/[^0-9.]/g, '')) || 0;
+
+                const card = document.createElement("div");
+                card.className = "order-card";
+                card.onclick = (e) => openOrderDetails(item, e);
+
+                let cancelBtnHtml = "";
+                if (status === "قيد الانتظار") {
+                    cancelBtnHtml = `<button class="btn-cancel-order" onclick="openCancelModal('${item.order_key}', event)">إلغاء</button>`;
+                } else if (status === "ملغي") {
+                    cancelBtnHtml = `<button class="btn-cancel-order disabled" disabled>إلغاء</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="card-top-row">
+                        <div class="customer-info">
+                            <div class="cus-name-box">
+                                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                <span>${item.cus_name || 'بدون اسم'}</span>
+                            </div>
+                            <div class="date-box">
+                                <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+                                <span>تاريخ الطلب : ${displayDate}</span>
+                            </div>
+                        </div>
+                        <div class="order-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">عدد القطع</span>
+                                <span class="metric-val">${totalPieces}</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">حالة الطلب</span>
+                                <span class="metric-val" style="color:${statusColor}">${status}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="card-bottom-row">
+                        <div class="total-price-box">
+                            <span>السعر الكلي :</span>
+                            <span class="total-price-val">${formatNum(rawPrice)}</span>
+                        </div>
+                        <div class="actions-box">
+                            <button class="btn-view-order">عرض الطلب</button>
+                            ${cancelBtnHtml}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        /* Filter Modal Logic */
+        function openFilterModal() {
+            tempSelectedStatus = appliedStatus;
+            renderFilterOptions();
+            document.getElementById("filterModal").style.display = "flex";
+        }
+
+        function closeFilterModal() {
+            document.getElementById("filterModal").style.display = "none";
+        }
+
+        function renderFilterOptions() {
+            const container = document.getElementById("status-options-container");
+            container.innerHTML = "";
+            statusList.forEach(st => {
+                const isSelected = (st === tempSelectedStatus);
+                const opt = document.createElement("div");
+                opt.className = `status-option ${isSelected ? 'selected' : ''}`;
+                opt.onclick = () => {
+                    tempSelectedStatus = st;
+                    renderFilterOptions();
+                };
+                opt.innerHTML = `
+                    <span>${st}</span>
+                    <div class="radio-dot"></div>
+                `;
+                container.appendChild(opt);
+            });
+        }
+
+        function confirmFilter() {
+            appliedStatus = tempSelectedStatus;
+            closeFilterModal();
+            applyFilters();
+        }
+
+        function clearFilter() {
+            appliedStatus = "كل الطلبات";
+            closeFilterModal();
+            applyFilters();
+        }
+
+        /* Cancel Order Logic */
+        function openCancelModal(key, event) {
+            event.stopPropagation();
+            targetCancelKey = key;
+            document.getElementById("cancelModal").style.display = "flex";
+        }
+
+        function closeCancelModal() {
+            document.getElementById("cancelModal").style.display = "none";
+            targetCancelKey = null;
+        }
+
+        function executeCancelOrder() {
+            if (targetCancelKey) {
+                db.ref("all_orders").child(targetCancelKey).child("status").setValue("ملغي");
+                closeCancelModal();
+            }
+        }
+
+        /* Navigation to Details Page */
+        function openOrderDetails(item, event) {
+            if (event) event.stopPropagation();
+
+            const params = new URLSearchParams();
+            params.append("order_id", item.order_id || "");
+            params.append("order_date", item.order_date || "");
+            params.append("status", item.status || "");
+            params.append("total_price", item.total_price || "");
+            params.append("order_profit", item.order_profit || "");
+            params.append("cart_items", item.cart_items || "[]");
+            params.append("cus_name", item.cus_name || "");
+            params.append("cus_phone", item.cus_phone || "");
+            params.append("cus_city", item.cus_city || "");
+            params.append("cus_area", item.cus_area || "");
+            params.append("cus_point", item.cus_point || "");
+            params.append("delivery", item.delivery || "");
+
+            window.location.href = "OrderdetailsActivity.html?" + params.toString();
+        }
+    </script>
+</body>
+</html>
